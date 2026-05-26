@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аккаунт — MODERN STROY</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    function updateCart() {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var total = cart.reduce(function(sum, item) { 
+            return sum + (Number(item.count) || 0); 
+        }, 0);
+        if (isNaN(total) || total < 0) {
+            localStorage.setItem('cart', '[]');
+            total = 0;
+        }
+        var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+        if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+    }
+
+updateCart();
+</script>
+    <style>
+        .modal-2fa-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-2fa-overlay.active { display: flex; }
+        .modal-2fa-box {
+            background: #fff;
+            border-radius: 28px;
+            padding: 50px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.15);
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-2fa-box h2 { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
+        .modal-2fa-box p { color: var(--muted); font-size: 14px; margin-bottom: 30px; line-height: 1.6; }
+        .totp-input { padding: 16px 24px; border: 2px solid var(--border); border-radius: 16px; font-size: 24px; font-weight: 800; text-align: center; letter-spacing: 8px; width: 220px; transition: 0.3s; font-family: inherit; }
+        .totp-input:focus { border-color: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft, #eff6ff); }
+        .modal-2fa-actions { display: flex; gap: 12px; justify-content: center; margin-top: 25px; }
+        .modal-2fa-error { color: #ff3b30; font-size: 13px; font-weight: 700; margin-top: 10px; display: none; }
+    </style>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="/public/pages/catalog.html">Каталог</a></li>
+                <li><a href="/public/pages/sets.html">Наборы</a></li>
+                <li><a href="/public/pages/metals.html">Металлы</a></li>
+                <li><a href="/public/pages/calc.html">Калькулятор</a></li>
+                <li><a href="/public/pages/about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                
+                <a href="/public/pages/login.html" class="login-btn active">Войти</a>
+                <a href="/public/pages/cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+            
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Металлы</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    
+        </div>
+    </div>
+
+    <main class="auth-section">
+        <div class="container">
+            <div class="auth-card" id="authCard">
+                <div class="auth-mode-selector">
+                    <button class="mode-btn active" id="mode-login" onclick="toggleView('login')">Вход</button>
+                    <button class="mode-btn" id="mode-reg" onclick="toggleView('register')">Регистрация</button>
+                </div>
+                <div class="form-container active" id="loginBlock">
+                    <div class="auth-title">
+                        <h1>С возвращением</h1>
+                        <p>Войдите, чтобы использовать бонусы и историю заказов</p>
+                    </div>
+                    <form class="auth-form" id="actualLoginForm">
+                        <div class="input-unit">
+                            <label>Электронная почта</label>
+                            <input type="text" placeholder="ivanov@example.ru" required>
+                            <span class="err-text">Введите корректный адрес</span>
+                        </div>
+                        <div class="input-unit">
+                            <label>Пароль</label>
+                            <input type="password" placeholder="••••••••" required>
+                            <span class="err-text">Это поле обязательно</span>
+                        </div>
+                        <button type="submit" class="btn btn-black btn-full">Продолжить</button>
+                    </form>
+                </div>
+                <div class="form-container" id="regBlock">
+                    <div class="auth-title">
+                        <h1>Создать аккаунт</h1>
+                        <p>Заполните данные для доступа к оптовым ценам</p>
+                    </div>
+                    <form class="auth-form" id="actualRegForm">
+                        <div class="reg-grid">
+                            <div class="input-unit"><label>ФИО</label><input type="text" placeholder="Иванов Иван Петрович" required minlength="10" maxlength="35" pattern="^[А-Яа-яЁё]+\s[А-Яа-яЁё]+\s[А-Яа-яЁё]+$" oninput="this.value = this.value.replace(/[^А-Яа-яЁё\s]/g, '')"></div>
+                            <div class="input-unit"><label>Телефон</label><input type="text" placeholder="89001234567" required maxlength="11" pattern="^[0-9]{1,11}$" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
+                            <div class="input-unit"><label>Email</label><input type="text" placeholder="ivan@mail.ru" required></div>
+                            <div class="input-unit"><label>Дата рождения</label><input type="date" id="reg-birth-date" required></div>
+                            <div class="input-unit full"><label>Адрес доставки</label><input type="text" placeholder="Город, улица, дом" required maxlength="30" pattern="^[А-Яа-яЁё0-9\s,.-]+$" oninput="this.value = this.value.replace(/[^А-Яа-яЁё0-9\s,.-]/g, '')"></div>
+                            <div class="input-unit full"><label>Пароль</label><input type="password" placeholder="Пароль" required></div>
+                        </div>
+                        <button type="submit" class="btn btn-black btn-full">Зарегистрироваться</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal-2fa-overlay" id="modal2FALogin" onclick="if(event.target===this)close2FALoginModal()">
+        <div class="modal-2fa-box">
+            <h2>Двухфакторная проверка</h2>
+            <p>Введите 6-значный код из <b>Google Authenticator</b> или <b>Authy</b> для завершения входа.</p>
+            <input type="text" class="totp-input" id="login-2fa-code" placeholder="000000" maxlength="6" inputmode="numeric">
+            <div class="modal-2fa-error" id="login-2fa-error">Неверный код. Попробуйте ещё раз.</div>
+            <div class="modal-2fa-actions">
+                <button class="btn btn-outline" onclick="close2FALoginModal()">Отмена</button>
+                <button class="btn btn-black" onclick="submit2FALogin()">Войти</button>
+            </div>
+        </div>
+    </div>
+
+     <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Металлы</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+(function() {
+    var sb = window.supabase.createClient(
+        'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+    );
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputs = document.querySelectorAll('input[required]');
+        inputs.forEach(function(input) {
+            input.addEventListener('invalid', function(e) {
+                this.setCustomValidity('Пожалуйста, заполните это поле');
+            });
+            input.addEventListener('input', function(e) {
+                this.setCustomValidity('');
+            });
+        });
+    });
+
+    var pendingEmail = '';
+    var pendingPassword = '';
+
+    window.toggleView = function(mode) {
+        var loginBlock = document.getElementById('loginBlock');
+        var regBlock = document.getElementById('regBlock');
+        var btnLogin = document.getElementById('mode-login');
+        var btnReg = document.getElementById('mode-reg');
+        var authCard = document.getElementById('authCard');
+        if (mode === 'register') {
+            loginBlock.classList.remove('active'); btnLogin.classList.remove('active');
+            regBlock.classList.add('active'); btnReg.classList.add('active');
+            authCard.classList.add('wide');
+        } else {
+            regBlock.classList.remove('active'); btnReg.classList.remove('active');
+            loginBlock.classList.add('active'); btnLogin.classList.add('active');
+            authCard.classList.remove('wide');
+        }
+    };
+
+    function translateSupabaseError(msg) {
+        if (!msg) return 'Произошла неизвестная ошибка';
+        var m = msg.toLowerCase();
+        if (m.includes('unable to validate email address')) return 'Неверный формат электронной почты.';
+        if (m.includes('user already registered')) return 'Пользователь с таким email уже существует.';
+        if (m.includes('password should be at least')) return 'Пароль должен содержать минимум 6 символов.';
+        if (m.includes('invalid login credentials')) return 'Неверный логин или пароль.';
+        if (m.includes('email not confirmed')) return 'Электронная почта не подтверждена.';
+        return 'Ошибка: ' + msg;
+    }
+
+    document.getElementById('actualRegForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var inputs = e.target.querySelectorAll('input');
+        var name = inputs[0].value; var phone = inputs[1].value; var email = inputs[2].value;
+        var address = inputs[4].value; var password = inputs[5].value;
+        var birthDate = new Date(document.getElementById('reg-birth-date').value);
+        var today = new Date();
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
+        if (age < 14) { alert('Регистрация доступна только пользователям от 14 лет'); return; }
+        try {
+            var { data, error } = await sb.auth.signUp({ email: email, password: password, options: { data: { full_name: name } } });
+            if (error) { alert(translateSupabaseError(error.message)); return; }
+            if (data.user) { await sb.from('profiles').update({ phone: phone, address: address }).eq('user_id', data.user.id); }
+            alert('Регистрация успешна! Теперь войдите.'); window.toggleView('login');
+        } catch (err) { alert('Ошибка при регистрации'); }
+    });
+
+    document.getElementById('actualLoginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var email = e.target.querySelector('input[type="text"]').value;
+        var password = e.target.querySelector('input[type="password"]').value;
+        try {
+            var oldUid = localStorage.getItem('current_user_id');
+            if (oldUid) {
+                localStorage.setItem('cart_' + oldUid, localStorage.getItem('cart') || '[]');
+            } else {
+                localStorage.setItem('cart_guest', localStorage.getItem('cart') || '[]');
+            }
+
+            var { data, error } = await sb.auth.signInWithPassword({ email: email, password: password });
+            if (error) { alert(translateSupabaseError(error.message)); return; }
+
+            localStorage.setItem('current_user_id', data.user.id);
+            var userCart = localStorage.getItem('cart_' + data.user.id);
+            if (userCart && userCart !== '[]') {
+                localStorage.setItem('cart', userCart);
+            } else {
+                var guestCart = localStorage.getItem('cart_guest');
+                if (guestCart && guestCart !== '[]') {
+                    localStorage.setItem('cart', guestCart);
+                    localStorage.setItem('cart_guest', '[]');
+                } else {
+                    localStorage.setItem('cart', '[]');
+                }
+            }
+
+            var { data: profile } = await sb.from('profiles').select('two_fa, full_name').eq('user_id', data.user.id).single();
+            if (profile?.two_fa) {
+                pendingEmail = email; pendingPassword = password;
+                document.getElementById('login-2fa-code').value = '';
+                document.getElementById('login-2fa-error').style.display = 'none';
+                document.getElementById('modal2FALogin').classList.add('active');
+                setTimeout(function() { document.getElementById('login-2fa-code').focus(); }, 300);
+                return;
+            }
+            var { data: roleData } = await sb.from('user_roles').select('role').eq('user_id', data.user.id).single();
+            var role = roleData?.role || 'user';
+            window.location.href = role === 'admin' ? '/public/pages/admin.html' : '/';
+        } catch (err) { alert('Ошибка сервера'); }
+    });
+
+    window.submit2FALogin = async function() {
+        var token2fa = document.getElementById('login-2fa-code').value.trim();
+        if (token2fa.length !== 6) {
+            document.getElementById('login-2fa-error').innerText = 'Введите 6-значный код';
+            document.getElementById('login-2fa-error').style.display = 'block'; return;
+        }
+        var { data: { user } } = await sb.auth.getUser();
+        if (user) {
+            var { data: roleData } = await sb.from('user_roles').select('role').eq('user_id', user.id).single();
+            window.close2FALoginModal();
+            window.location.href = (roleData?.role === 'admin') ? '/public/pages/admin.html' : '/';
+        } else {
+            document.getElementById('login-2fa-error').innerText = 'Ошибка авторизации';
+            document.getElementById('login-2fa-error').style.display = 'block';
+        }
+    };
+
+    window.close2FALoginModal = function() {
+        document.getElementById('modal2FALogin').classList.remove('active');
+        pendingEmail = ''; pendingPassword = '';
+    };
+
+    document.getElementById('login-2fa-code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') window.submit2FALogin();
+    });
+
+})();
+</script>
+
+</body>
+</html>

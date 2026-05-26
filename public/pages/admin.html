@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления — Строй Мир</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            
+            <ul class="nav-links" id="navLinks">
+                <li><a href="catalog.html">Каталог</a></li>
+                <li><a href="sets.html">Готовые наборы</a></li>
+                <li><a href="metals.html">Сдать металл</a></li>
+                <li><a href="calc.html">Калькулятор</a></li>
+                <li><a href="about.html">О нас</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Металлы</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    <main class="admin-page container">
+        <div class="admin-grid-layout">
+            <aside class="admin-sidebar">
+                <div class="admin-sidebar-title">Управление</div>
+                <nav class="admin-menu">
+                    <button class="adm-item active" onclick="switchTab('dashboard', this)">Статистика</button>
+                    <button class="adm-item" onclick="switchTab('products', this)">Каталог товаров</button>
+                    <button class="adm-item" onclick="switchTab('metals', this)">Цены на лом</button>
+                    <button class="adm-item" onclick="switchTab('scrap', this)">Заявки на лом</button>
+                    <button class="adm-item" onclick="switchTab('promocodes', this)">Промокоды</button>
+                    <button class="adm-item" onclick="switchTab('users', this)">Клиентская база</button>
+                    <button class="adm-item" onclick="switchTab('orders', this)">Заказы</button>
+                    <div style="height: 1px; background: var(--border); margin: 10px 0;"></div>
+                    <button class="adm-item" style="color: #dc2626;" onclick="handleLogout()">Выйти</button>
+                </nav>
+            </aside>
+
+            <section class="admin-viewport">
+                <div id="tab-dashboard" class="admin-tab active">
+                    <div class="admin-tab-header">
+                        <h1>Аналитика</h1>
+                        <p>Основные показатели бизнеса</p>
+                    </div>
+                    <div class="stats-detailed-grid">
+                        <div class="stat-card">
+                            <span>Общий оборот</span>
+                            <h2 id="st-revenue">0 &#8381;</h2>
+                        </div>
+                        <div class="stat-card">
+                            <span>Заказов</span>
+                            <h2 id="st-orders">0</h2>
+                        </div>
+                        <div class="stat-card">
+                            <span>Клиентов</span>
+                            <h2 id="st-users">0</h2>
+                        </div>
+                        <div class="stat-card">
+                            <span>Ценность склада</span>
+                            <h2 id="st-stock-val">0 &#8381;</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-section-block">
+                        <h3>Последние заказы</h3>
+                        <div id="list-recent-orders" class="admin-recent-list">
+                            <div style="text-align:center; padding: 40px; color: var(--muted);">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-products" class="admin-tab">
+                    <div class="section-header-inline">
+                        <div>
+                            <h2>Каталог товаров</h2>
+                            <p class="admin-subtitle">Управление ассортиментом магазина</p>
+                        </div>
+                        <button class="btn btn-black" onclick="toggleModal('productModal')">Добавить товар</button>
+                    </div>
+
+                    <div class="admin-filters">
+                        <input type="text" id="product-search" placeholder="Поиск по названию..." class="admin-search-input" oninput="filterProducts()">
+                        <select id="product-cat-filter" class="admin-select" onchange="filterProducts()">
+                            <option value="">Все категории</option>
+                            <option value="1">Инструмент</option>
+                            <option value="2">Материалы</option>
+                            <option value="3">Электрика</option>
+                            <option value="4">Освещение</option>
+                        </select>
+                    </div>
+
+                    <div id="list-products" class="cards-grid">
+                        <div style="text-align:center; padding: 40px; color: var(--muted); grid-column: 1/-1;">Загрузка товаров...</div>
+                    </div>
+                </div>
+
+                
+                <div id="tab-promocodes" class="admin-tab">
+                    <div class="admin-tab-header">
+                        <h1>Промокоды</h1>
+                        <p>Управление скидками для клиентов</p>
+                    </div>
+                    <div class="admin-panel-card">
+                        <h3>Создать промокод</h3>
+                        <div style="display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;">
+                            <input type="text" id="promo-code-input" placeholder="Код (например, SUMMER)" style="padding: 12px; border: 1px solid var(--border); border-radius: 12px;">
+                            <input type="number" id="promo-discount" placeholder="Скидка %" style="padding: 12px; border: 1px solid var(--border); border-radius: 12px; width: 120px;" min="1" max="100">
+                            <input type="number" id="promo-limit" placeholder="Лимит кол-ва (необяз.)" style="padding: 12px; border: 1px solid var(--border); border-radius: 12px; width: 200px;" min="1">
+                            <input type="date" id="promo-date" style="padding: 12px; border: 1px solid var(--border); border-radius: 12px;">
+                            <button class="btn btn-black" onclick="createPromo()">Добавить</button>
+                        </div>
+                        <div class="cards-grid" id="promoContainer">
+                            <div class="empty-state">Загрузка промокодов...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-users" class="admin-tab">
+                    <div class="section-header-inline">
+                        <div>
+                            <h2>Клиентская база</h2>
+                            <p class="admin-subtitle">Зарегистрированные пользователи системы</p>
+                        </div>
+                    </div>
+                    <div id="list-users" class="cards-grid">
+                        <div style="text-align:center; padding: 40px; color: var(--muted); grid-column: 1/-1;">Загрузка клиентов...</div>
+                    </div>
+                </div>
+
+                <div id="tab-metals" class="admin-tab">
+                    <div class="admin-tab-header">
+                        <h1>Цены на прием лома</h1>
+                        <p>Управление стоимостью покупки металлолома у населения (₽/кг)</p>
+                    </div>
+                    
+                    <div class="admin-section-block">
+                        <form id="metalRatesForm" class="admin-form" style="max-width: 600px;">
+                            <div class="group">
+                                <label>Черный металл (₽/кг)</label>
+                                <input type="number" id="rate-black" required>
+                            </div>
+                            <div class="group">
+                                <label>Медь (₽/кг)</label>
+                                <input type="number" id="rate-copper" required>
+                            </div>
+                            <div class="group">
+                                <label>Алюминий (₽/кг)</label>
+                                <input type="number" id="rate-aluminum" required>
+                            </div>
+                            <div class="group">
+                                <label>Латунь / Бронза (₽/кг)</label>
+                                <input type="number" id="rate-brass" required>
+                            </div>
+                            <div style="margin-top: 20px;">
+                                <button type="submit" class="btn btn-black">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="tab-scrap" class="admin-tab">
+                    <div class="admin-tab-header">
+                        <h1>Заявки на лом</h1>
+                        <p>Управление заявками на сдачу металлолома от клиентов</p>
+                    </div>
+                    <div class="admin-section-block">
+                        <div id="adminScrapList" class="admin-orders-list">
+                            <div style="text-align:center; padding:40px;">Загрузка заявок...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-orders" class="admin-tab">
+                    <div class="section-header-inline">
+                        <div>
+                            <h2>Заказы</h2>
+                            <p class="admin-subtitle">Управление заказами клиентов</p>
+                        </div>
+                    </div>
+                    <div id="list-orders" class="cards-grid">
+                        <div style="text-align:center; padding: 40px; color: var(--muted); grid-column: 1/-1;">Загрузка заказов...</div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <div id="productModal" class="modal-overlay" style="display:none">
+        <div class="modal-content-admin">
+            <h2>Новый товар</h2>
+            <form id="addProductForm" class="admin-form">
+                <div class="form-row">
+                    <div class="group"><label>Название</label><input type="text" id="p-name" required></div>
+                    <div class="group"><label>Бренд</label><input type="text" id="p-brand" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="group"><label>Цена (&#8381;)</label><input type="number" id="p-price" required></div>
+                    <div class="group"><label>Остаток на складе</label><input type="number" id="p-stock" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="group">
+                        <label>Категория</label>
+                        <select id="p-cat">
+                            <option value="1">Инструмент</option>
+                            <option value="2">Материалы</option>
+                            <option value="3">Электрика</option>
+                            <option value="4">Освещение</option>
+                        </select>
+                    </div>
+                    <div class="group"><label>Описание</label><input type="text" id="p-desc" placeholder="Краткое описание"></div>
+                </div>
+                <div class="group">
+                    <label>Фотографии товара (макс. 3)</label>
+                    <input type="file" id="p-photos" accept="image/*" multiple>
+                    <small style="color: var(--muted); font-size: 11px;">Выберите до 3-х файлов. Первое фото будет основным.</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-black">Сохранить</button>
+                    <button type="button" class="btn btn-outline" onclick="toggleModal('productModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editProductModal" class="modal-overlay" style="display:none">
+        <div class="modal-content-admin">
+            <h2>Редактировать товар</h2>
+            <form id="editProductForm" class="admin-form">
+                <input type="hidden" id="ep-id">
+                <div class="form-row">
+                    <div class="group"><label>Название</label><input type="text" id="ep-name" required></div>
+                    <div class="group"><label>Бренд</label><input type="text" id="ep-brand" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="group"><label>Цена (&#8381;)</label><input type="number" id="ep-price" required></div>
+                    <div class="group"><label>Остаток</label><input type="number" id="ep-stock" required></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-black">Обновить</button>
+                    <button type="button" class="btn btn-outline" onclick="toggleModal('editProductModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="orderDetailModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)toggleModal('orderDetailModal')">
+        <div class="modal-content-admin wide">
+            <div class="section-header-inline">
+                <h2>Детали заказа</h2>
+                <button class="btn-del" onclick="toggleModal('orderDetailModal')">Закрыть</button>
+            </div>
+            <div id="order-details-body" class="order-details-content">
+                
+            </div>
+        </div>
+    </div>
+
+        <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Металлы</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        var sb = window.supabase.createClient(
+            'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+        );
+
+        window.toggleMenu = function() {
+            var nav = document.getElementById('navLinks');
+            var burger = document.getElementById('burgerBtn');
+            nav.classList.toggle('mobile-active');
+            burger.classList.toggle('open');
+            document.body.classList.toggle('menu-open');
+        };
+
+        async function checkAdmin() {
+            try {
+                var { data: { session } } = await sb.auth.getSession();
+                var user = session?.user;
+                if (!user) { alert('Доступ запрещен'); window.location.href = 'login.html'; return; }
+                var results = await Promise.all([
+                    sb.from('user_roles').select('role').eq('user_id', user.id).single(),
+                    sb.from('profiles').select('full_name').eq('user_id', user.id).single()
+                ]);
+                var roleData = results[0].data; var profile = results[1].data;
+                if (!roleData || roleData.role !== 'admin') { alert('Доступ запрещен'); window.location.href = 'login.html'; return; }
+                var authBtn = document.getElementById('navAuthBtn');
+                if (authBtn && profile) { authBtn.innerHTML = (profile.full_name || '').split(' ')[0];
+                    authBtn.href = 'admin.html';
+                    if(window.__updateMobileAuth) window.__updateMobileAuth(authBtn.innerHTML, authBtn.href); }
+            } catch(e) { console.log('Auth check failed'); }
+        }
+
+        window.handleLogout = async function() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                var oldUid = localStorage.getItem('current_user_id');
+                if (oldUid) {
+                    localStorage.setItem('cart_' + oldUid, localStorage.getItem('cart') || '[]');
+                }
+                localStorage.removeItem('current_user_id');
+                localStorage.setItem('cart', '[]');
+                await sb.auth.signOut();
+                window.location.href = '/public/pages/login.html';
+            }
+        };
+
+        function updateCart() {
+            var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            var total = cart.reduce(function(sum, item) { return sum + (Number(item.count) || 0); }, 0);
+            var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+            if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+        }
+
+        window.switchTab = function(id, btn) {
+            document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.adm-item').forEach(function(b) { b.classList.remove('active'); });
+            document.getElementById('tab-' + id).classList.add('active');
+            btn.classList.add('active');
+            if(id === 'dashboard') loadStats();
+            if(id === 'products') loadProducts();
+            if (id === 'metals') loadMetalRates();
+            if (id === 'scrap') fetchAdminScrap();
+            if (id === 'users') loadUsers();
+            if (id === 'orders') loadOrders();
+            if (id === 'promocodes') loadPromos();
+        };
+
+        async function loadPromos() {
+            var { data, error } = await sb.from('promocodes').select('*').order('created_at', { ascending: false });
+            var container = document.getElementById('promoContainer');
+            if (error) { container.innerHTML = '<p style="color:red">Ошибка: ' + error.message + '</p>'; return; }
+            if (!data || data.length === 0) { container.innerHTML = '<div class="empty-state">Нет активных промокодов</div>'; return; }
+            container.innerHTML = data.map(function(p) {
+                var exp = new Date(p.expires_at).toLocaleDateString('ru-RU');
+                return '<div class="admin-card">' +
+                    '<h4 style="font-size:20px; font-weight:800; color:var(--accent)">' + p.code + '</h4>' +
+                    '<p style="margin:10px 0; font-size:28px; font-weight:800;">-' + p.discount_percent + '%</p>' +
+                    '<p style="color:var(--muted); font-size:14px; margin-bottom:5px;">Действует до: <b>' + exp + '</b></p>' +
+                    '<p style="color:var(--muted); font-size:14px;">Использовано: <b>' + (p.used_count || 0) + ' / ' + (p.usage_limit || 'Без лимита') + '</b></p>' +
+                    '<button class="btn btn-outline" style="color:#ff3b30; border-color:#ff3b30; width:100%; margin-top:20px;" onclick="deletePromo(\'' + p.id + '\')">Удалить</button>' +
+                    '</div>';
+            }).join('');
+        }
+
+        window.createPromo = async function() {
+            var code = document.getElementById('promo-code-input').value.trim().toUpperCase();
+            var disc = parseInt(document.getElementById('promo-discount').value);
+            var limit = parseInt(document.getElementById('promo-limit').value) || null;
+            var date = document.getElementById('promo-date').value;
+            if(!code || !disc || !date) return alert('Заполните код, скидку и срок');
+            
+            var { error } = await sb.from('promocodes').insert({
+                code: code, discount_percent: disc, usage_limit: limit, expires_at: date
+            });
+            if(error) alert('Ошибка создания: ' + error.message);
+            else { 
+                alert('Промокод успешно создан!'); 
+                document.getElementById('promo-code-input').value = '';
+                document.getElementById('promo-discount').value = '';
+                document.getElementById('promo-limit').value = '';
+                document.getElementById('promo-date').value = '';
+                loadPromos(); 
+            }
+        };
+
+        window.deletePromo = async function(id) {
+            if(!confirm('Удалить этот промокод?')) return;
+            await sb.from('promocodes').delete().eq('id', id);
+            loadPromos();
+        };
+
+        async function fetchAdminScrap() {
+            const container = document.getElementById('adminScrapList');
+            const { data: subs, error } = await sb.from('scrap_submissions').select('*').order('created_at', { ascending: false });
+            
+            if (error) { container.innerHTML = 'Ошибка: ' + error.message; return; }
+            if (!subs || subs.length === 0) { container.innerHTML = '<div style="padding:40px; text-align:center;">Заявок пока нет</div>'; return; }
+
+            const userIds = [...new Set(subs.map(s => s.user_id))];
+            let profileMap = {};
+            if (userIds.length > 0) {
+                const { data: profiles } = await sb.from('profiles').select('user_id, full_name').in('user_id', userIds);
+                if (profiles) {
+                    profiles.forEach(p => { profileMap[p.user_id] = p.full_name; });
+                }
+            }
+
+            const typeNames = { black: 'Черный', copper: 'Медь', aluminum: 'Алюм', brass: 'Латунь' };
+            container.innerHTML = '<div class="cards-grid">' + subs.map(s => `
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">${typeNames[s.metal_type] || s.metal_type} - ${s.weight} кг</div>
+                            <div class="card-meta">Клиент: ${profileMap[s.user_id] || 'Неизвестен'}</div>
+                        </div>
+                        <span class="status-label ${s.status === 'pending' ? 'status-pending' : s.status === 'accepted' ? 'status-delivered' : 'status-shipped'}">${s.status === 'pending' ? 'Ожидание' : s.status === 'accepted' ? 'Принято' : 'Отклонено'}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-info-row">
+                            <span class="label">Дата заявки</span>
+                            <span class="value">${new Date(s.created_at).toLocaleString('ru-RU')}</span>
+                        </div>
+                        <div class="card-info-row" style="margin-top: 15px;">
+                            <span class="label">К выплате</span>
+                            <span class="value" style="font-size: 18px; color: var(--accent);">${(s.total_sum || 0).toLocaleString()} ₽</span>
+                        </div>
+                    </div>
+                    ${s.status === 'pending' ? `
+                    <div class="card-footer" style="justify-content: flex-end; gap: 10px;">
+                        <button class="btn-action" style="color: #fff; background: #000; border-color: #000;" onclick="updateScrapStatus('${s.id}', 'accepted')">Принять</button>
+                        <button class="btn-action" style="color: #000; background: #fff; border-color: var(--border);" onclick="updateScrapStatus('${s.id}', 'rejected')">Отклонить</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('') + '</div>';
+        }
+
+        window.updateScrapStatus = async function(id, status) {
+            await sb.from('scrap_submissions').update({ status }).eq('id', id);
+            fetchAdminScrap();
+        };
+
+        async function loadMetalRates() {
+            try {
+                const { data, error } = await sb.from('metal_rates').select('*');
+                if (data) {
+                    data.forEach(r => {
+                        const el = document.getElementById('rate-' + r.code);
+                        if (el) el.value = r.price_per_ton;
+                    });
+                }
+            } catch(e) { console.error('Failed to load metal rates'); }
+        }
+
+        document.getElementById('metalRatesForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const rates = [
+                { code: 'black', name: 'Черный металл', price_per_ton: parseFloat(document.getElementById('rate-black').value) },
+                { code: 'copper', name: 'Медь', price_per_ton: parseFloat(document.getElementById('rate-copper').value) },
+                { code: 'aluminum', name: 'Алюминий', price_per_ton: parseFloat(document.getElementById('rate-aluminum').value) },
+                { code: 'brass', name: 'Латунь / Бронза', price_per_ton: parseFloat(document.getElementById('rate-brass').value) }
+            ];
+
+            try {
+                for (const r of rates) {
+                    await sb.from('metal_rates').upsert(r, { onConflict: 'code' });
+                }
+                alert('Цены успешно обновлены!');
+            } catch(e) { alert('Ошибка при сохранении'); }
+        };
+
+        async function loadStats() {
+            try {
+                const [prodRes, orderRes, usersRes] = await Promise.all([
+                    sb.from('products').select('*', { count: 'exact', head: true }),
+                    sb.from('orders').select('*').order('created_at', { ascending: false }),
+                    sb.from('profiles').select('*', { count: 'exact', head: true })
+                ]);
+                
+                const ordersData = orderRes.data || [];
+                const revenue = ordersData.reduce((s, o) => s + (o.total_price || 0), 0);
+                
+                const stockRes = await sb.from('products').select('price, stock');
+                const stockValue = (stockRes.data || []).reduce((s, p) => s + (p.price * (p.stock || 0)), 0);
+
+                document.getElementById('st-revenue').innerText = revenue.toLocaleString() + ' ₽';
+                document.getElementById('st-orders').innerText = ordersData.length;
+                document.getElementById('st-users').innerText = usersRes.count || 0;
+                document.getElementById('st-stock-val').innerText = stockValue.toLocaleString() + ' ₽';
+
+                
+                renderRecentOrders(ordersData.slice(0, 5));
+            } catch(e) { console.error('Stats load failed', e); }
+        }
+
+        function renderRecentOrders(orders) {
+            const container = document.getElementById('list-recent-orders');
+            if (!orders.length) {
+                container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--muted);">Заказов пока нет</div>';
+                return;
+            }
+
+            container.innerHTML = orders.map(o => `
+                <div class="admin-card" style="margin-bottom: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px;">Заказ #${o.id.slice(0, 8)}</div>
+                        <div style="font-size: 12px; color: var(--muted);">${new Date(o.created_at).toLocaleDateString('ru-RU')}</div>
+                    </div>
+                    <div style="font-weight: 800; color: var(--primary);">${(o.total_price || 0).toLocaleString()} ₽</div>
+                    <button class="btn-action" onclick="showOrderDetails('${o.id}')">Подробнее</button>
+                </div>
+            `).join('');
+        }
+
+        var allProducts = [];
+        var catNames = { 
+            "e0cb0b66-3c09-40f5-b0a9-48af26480fdb": 'Инструмент', 
+            "5bf782e4-ab51-4e40-be03-7b6604905cbe": 'Материалы', 
+            "3c7d2aa0-5f9b-45e4-b2cf-fd928ded4651": 'Электрика', 
+            "4ad38174-7700-44c6-8c06-a12d2e2cc2e8": 'Освещение' 
+        };
+
+        async function loadProducts() {
+            try {
+                const { data, error } = await sb.from('products').select('*');
+                if (error) throw error;
+                allProducts = data || [];
+                renderProducts(allProducts);
+            } catch(e) { console.error('Products load failed'); }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('list-products');
+            if (!products.length) {
+                container.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted); grid-column: 1/-1;">Товары не найдены</div>';
+                return;
+            }
+
+            container.innerHTML = products.map(p => `
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div class="card-title">${p.name}</div>
+                        <div class="role-badge">${catNames[p.category_id] || 'Прочее'}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-info-row"><span class="label">Бренд:</span><span class="value">${p.brand || '—'}</span></div>
+                        <div class="card-info-row"><span class="label">Цена:</span><span class="value">${p.price.toLocaleString()} ₽</span></div>
+                        <div class="card-info-row"><span class="label">Склад:</span><span class="value">${p.stock || 0} шт</span></div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-edit" style="border:none; background:none; font-weight:700; color:var(--primary); cursor:pointer;" onclick="openEditProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}', '${(p.brand||'').replace(/'/g, "\\'")}', ${p.price}, ${p.stock})">Изменить</button>
+                        <button class="btn-del" onclick="deleteProduct('${p.id}')">Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.filterProducts = function() {
+            const search = document.getElementById('product-search').value.toLowerCase();
+            const cat = document.getElementById('product-cat-filter').value;
+            
+            const filterMap = { "1": "e0cb0b66-3c09-40f5-b0a9-48af26480fdb", "2": "5bf782e4-ab51-4e40-be03-7b6604905cbe", "3": "3c7d2aa0-5f9b-45e4-b2cf-fd928ded4651", "4": "4ad38174-7700-44c6-8c06-a12d2e2cc2e8" };
+            
+            let filtered = allProducts;
+            if(search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || (p.brand||'').toLowerCase().includes(search));
+            if(cat) filtered = filtered.filter(p => p.category_id === filterMap[cat]);
+            renderProducts(filtered);
+        };
+
+        window.openEditProduct = function(id, name, brand, price, stock) {
+            document.getElementById('ep-id').value = id;
+            document.getElementById('ep-name').value = name;
+            document.getElementById('ep-brand').value = brand;
+            document.getElementById('ep-price').value = price;
+            document.getElementById('ep-stock').value = stock;
+            window.toggleModal('editProductModal');
+        };
+
+        window.deleteProduct = async function(id) {
+            if(confirm('Удалить товар из базы?')) {
+                await sb.from('products').delete().eq('id', id);
+                loadProducts();
+            }
+        };
+
+        async function loadUsers() {
+            try {
+                const { data, error } = await sb.from('profiles').select('*');
+                if (error) throw error;
+                renderUsers(data || []);
+            } catch(e) { console.error('Users load failed'); }
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('list-users');
+            if (!users.length) {
+                container.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted); grid-column: 1/-1;">Клиентов пока нет</div>';
+                return;
+            }
+
+            container.innerHTML = users.map(u => `
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div class="card-title">${u.full_name || 'Без имени'}</div>
+                        <div class="role-badge">Клиент</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-info-row"><span class="label">Email:</span><span class="value" style="font-size:11px;">${u.email || '—'}</span></div>
+                        <div class="card-info-row"><span class="label">Телефон:</span><span class="value">${u.phone || '—'}</span></div>
+                        <div class="card-info-row"><span class="label">Адрес:</span><span class="value">${u.address || '—'}</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        var allOrders = [];
+        async function loadOrders() {
+            try {
+                const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                allOrders = data || [];
+                renderOrders(allOrders);
+            } catch(e) { console.error('Orders load failed'); }
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('list-orders');
+            if (!orders.length) {
+                container.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted); grid-column: 1/-1;">Заказов пока нет</div>';
+                return;
+            }
+
+            container.innerHTML = orders.map(o => `
+                <div class="admin-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Заказ #${o.id.slice(0,8)}</div>
+                            <div class="card-meta">${new Date(o.created_at).toLocaleDateString('ru-RU')}</div>
+                        </div>
+                        <span class="status-label ${getStatusClass(o.status)}">${o.status || 'Новый'}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-info-row"><span class="label">Сумма:</span><span class="value" style="color:var(--primary); font-size:16px;">${(o.total_price || 0).toLocaleString()} ₽</span></div>
+                        <div class="card-info-row"><span class="label">Метод:</span><span class="value">${o.payment_method === 'card' ? 'Карта' : 'Наличные'}</span></div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-action" onclick="showOrderDetails('${o.id}')">Детали</button>
+                        <select class="admin-select-sm" onchange="updateOrderStatus('${o.id}', this.value)">
+                            <option value="new" ${o.status==='new'?'selected':''}>Новый</option>
+                            <option value="processing" ${o.status==='processing'?'selected':''}>В работе</option>
+                            <option value="shipped" ${o.status==='shipped'?'selected':''}>Отправлен</option>
+                            <option value="delivered" ${o.status==='delivered'?'selected':''}>Доставлен</option>
+                        </select>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            if (status === 'new') return 'status-pending';
+            if (status === 'processing') return 'status-processing';
+            if (status === 'shipped') return 'status-shipped';
+            if (status === 'delivered') return 'status-delivered';
+            return '';
+        }
+
+        window.showOrderDetails = async function(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            
+            const { data: profile } = await sb.from('profiles').select('*').eq('user_id', order.user_id).maybeSingle();
+
+            const body = document.getElementById('order-details-body');
+            body.innerHTML = `
+                <div class="order-user-info">
+                    <p><strong>Клиент:</strong> ${profile?.full_name || 'Не указано'}</p>
+                    <p><strong>Телефон:</strong> ${profile?.phone || '—'}</p>
+                    <p><strong>Адрес доставки:</strong> ${profile?.address || 'Самовывоз'}</p>
+                    <p><strong>Способ оплаты:</strong> ${order.payment_method === 'card' ? 'Банковская карта' : 'Наличные'}</p>
+                </div>
+                <h3>Товары в заказе:</h3>
+                <div class="order-items-list">
+                    ${(order.items || []).map(item => `
+                        <div class="order-item-row">
+                            <span>${item.name} x ${item.count}</span>
+                            <span style="font-weight:700;">${(item.price * item.count).toLocaleString()} ₽</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="order-total-sum">
+                    <span>Итого к оплате:</span>
+                    <span>${(order.total_price || 0).toLocaleString()} ₽</span>
+                </div>
+            `;
+            window.toggleModal('orderDetailModal');
+        };
+
+        window.updateOrderStatus = async function(id, status) {
+            try { 
+                await sb.from('orders').update({ status: status }).eq('id', id); 
+                loadOrders(); 
+            } catch(e) { console.error('Status update failed'); }
+        };
+
+        window.toggleModal = function(id) {
+            var m = document.getElementById(id);
+            if (m) m.style.display = m.style.display === 'none' ? 'flex' : 'none';
+        };
+
+        
+        document.getElementById('addProductForm').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = 'Сохранение...';
+
+            try {
+                
+                const photoInput = document.getElementById('p-photos');
+                const files = photoInput.files;
+                
+                if (files.length === 0) {
+                    alert('Выберите хотя бы одно фото');
+                    btn.disabled = false; btn.innerText = 'Сохранить';
+                    return;
+                }
+
+                if (files.length > 3) {
+                    alert('Максимум 3 фотографии');
+                    btn.disabled = false; btn.innerText = 'Сохранить';
+                    return;
+                }
+
+                const formData = new FormData();
+                for (let i = 0; i < files.length; i++) {
+                    formData.append('photos', files[i]);
+                }
+
+                const uploadRes = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadRes.ok) throw new Error('Ошибка при загрузке файлов на сервер');
+                
+                const { filenames } = await uploadRes.json();
+                const mainImage = filenames[0]; 
+
+                
+                
+                const catMap = {
+                    "1": "e0cb0b66-3c09-40f5-b0a9-48af26480fdb", 
+                    "2": "5bf782e4-ab51-4e40-be03-7b6604905cbe", 
+                    "3": "3c7d2aa0-5f9b-45e4-b2cf-fd928ded4651", 
+                    "4": "3c7d2aa0-5f9b-45e4-b2cf-fd928ded4651"  
+                };
+
+                const body = {
+                    name: document.getElementById('p-name').value,
+                    brand: document.getElementById('p-brand').value,
+                    price: parseFloat(document.getElementById('p-price').value),
+                    stock: parseInt(document.getElementById('p-stock').value),
+                    category_id: catMap[document.getElementById('p-cat').value],
+                    img: mainImage 
+                    
+                };
+
+                const { error } = await sb.from('products').insert(body);
+                
+                if (error) {
+                    console.error('Ошибка Supabase:', error);
+                    throw new Error(error.message);
+                }
+
+                
+                window.toggleModal('productModal');
+                document.getElementById('addProductForm').reset();
+                loadProducts();
+                alert('Товар успешно добавлен!');
+
+            } catch (err) {
+                console.error('Ошибка:', err);
+                alert('Не удалось добавить товар: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Сохранить';
+            }
+        };
+
+        document.getElementById('editProductForm').onsubmit = async function(e) {
+            e.preventDefault();
+            var id = document.getElementById('ep-id').value;
+            var body = {
+                name: document.getElementById('ep-name').value,
+                brand: document.getElementById('ep-brand').value,
+                price: parseFloat(document.getElementById('ep-price').value),
+                stock: parseInt(document.getElementById('ep-stock').value)
+            };
+            var { error } = await sb.from('products').update(body).eq('id', id);
+            if (!error) { window.toggleModal('editProductModal'); loadProducts(); }
+        };
+
+        window.handleLogout = async function() {
+            await sb.auth.signOut();
+            window.location.href = '/';
+        };
+
+        window.onload = function() { checkAdmin(); loadStats(); updateCart(); };
+    })();
+    </script>
+</body>
+</html>

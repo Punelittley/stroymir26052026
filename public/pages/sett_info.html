@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали набора — Строй Мир</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/sets_info.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    function updateCart() {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var total = cart.reduce(function(sum, item) { return sum + (Number(item.count) || 0); }, 0);
+        var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+        if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+        var mEl = document.getElementById('mobileCartCount');
+        if (mEl) mEl.innerText = total;
+    }
+    updateCart();
+    </script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+
+<body>
+   <nav class="navbar">
+    <div class="container flex-nav">
+        <a href="/" class="logo">Строй Мир<span>.</span></a>
+        <ul class="nav-links">
+            <li><a href="/public/pages/catalog.html">Каталог</a></li>
+            <li><a href="/public/pages/sets.html">Готовые наборы</a></li>
+            <li><a href="/public/pages/brands.html">Бренды</a></li>
+            <li><a href="/public/pages/calc.html">Калькулятор</a></li>
+            <li><a href="/public/pages/about.html">О нас</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="/public/pages/login.html" class="login-btn" id="navAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="cart-pill">
+                <span>Корзина</span>
+                <div class="count" id="cartCount">0</div>
+            </a>
+            
+        </div>
+    </div>
+</nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/brands.html">Бренды</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    
+        </div>
+    </div>
+
+    <main class="container catalog-page">
+        <div class="set-detail-wrapper">
+            <div class="set-main-info">
+                <div class="set-badge-pro">PRO SOLUTION</div>
+                <h1 id="set-title">Загрузка...</h1>
+                <p id="set-desc" class="set-description">...</p>
+                <div class="purchase-box-v2">
+                    <span class="old-price" id="old-price">0 ₽</span>
+                    <div class="set-total-price">Цена набора: <span id="set-price" style="color:var(--accent)">0 ₽</span></div>
+                    <button class="btn btn-black btn-full" style="margin-top:20px" onclick="handleAddToSetCart()">Купить набор</button>
+                </div>
+            </div>
+
+            <div class="set-components" id="components-section" style="display:none;">
+                <h3>Что входит в комплект:</h3>
+                <div class="components-list" id="comp-list"></div>
+            </div>
+        </div>
+    </main>
+
+        <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/brands.html">Бренды</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+(function() {
+    const sb = window.supabase.createClient(
+        'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+    );
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let setId = urlParams.get('id');
+    if (!setId) {
+        setId = window.location.hash.replace('#', '');
+    }
+    let isLoggedIn = false;
+    let currentSetData = null;
+
+    async function checkAuth() {
+        try {
+            const { data: { session } } = await sb.auth.getSession();
+            const user = session?.user;
+            const authBtn = document.getElementById('navAuthBtn');
+            const mobileAuthBtn = document.getElementById('mobileAuthBtn');
+            if (user) {
+                isLoggedIn = true;
+                const [{ data: profile }, { data: roleData }] = await Promise.all([
+                    sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+                    sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+                ]);
+                const name = (profile && profile.full_name) || user.email || 'Профиль';
+                const role = (roleData && roleData.role) || 'user';
+                const targetPage = (role === 'admin') ? '/public/pages/admin.html' : '/public/pages/profile.html';
+                const userLabel = ' ' + name.split(' ')[0];
+                if(authBtn) { authBtn.innerHTML = userLabel;
+                    authBtn.href = targetPage;
+                    if(window.__updateMobileAuth) window.__updateMobileAuth(authBtn.innerHTML, authBtn.href); }
+                if(mobileAuthBtn) { mobileAuthBtn.innerHTML = userLabel; mobileAuthBtn.href = targetPage; }
+            }
+        } catch (e) { console.log("Гость"); }
+    }
+
+    async function loadSet() {
+        if (!setId) { showError("Набор не указан"); return; }
+        try {
+            const { data: setData, error: setError } = await sb.from('sets').select('*').eq('id', setId).single();
+            if (setError || !setData) throw setError || new Error("Set not found");
+            currentSetData = setData;
+            document.getElementById('set-title').innerText = setData.name;
+            document.getElementById('set-desc').innerText = setData.description || '';
+            document.getElementById('set-price').innerText = (setData.price || 0).toLocaleString() + ' ₽';
+            document.getElementById('old-price').innerText = (setData.old_price || 0).toLocaleString() + ' ₽';
+
+            const { data: items, error: itemsError } = await sb.from('set_items').select('*, products(name, img)').eq('set_id', setId);
+            if (!itemsError && items && items.length > 0) {
+                document.getElementById('components-section').style.display = 'block';
+                document.getElementById('comp-list').innerHTML = items.map(function(i) {
+                    let cleanImg = (i.products?.img || '').replace(/^\//, '').replace(/^img\//, '');
+                    let imgPath = '../../img/' + cleanImg;
+                    return '<div class="comp-item-v2">' +
+                        '<img src="' + imgPath + '" style="width:60px; height:60px; object-fit:contain;" onerror="this.style.display=\'none\'">' +
+                        '<div class="comp-info"><h4>' + (i.products?.name || 'Товар') + '</h4>' +
+                        '<p>Кол-во: <b>' + (i.quantity || 1) + '</b></p></div></div>';
+                }).join('');
+            }
+        } catch (e) { showError("Набор не найден"); }
+    }
+
+    function showError(msg) {
+        const main = document.querySelector('main');
+        if (main) {
+            main.innerHTML = '<div style="text-align:center; padding: 100px 20px;">' +
+                '<h1>' + msg + '</h1><br><a href="/public/pages/sets.html" class="btn btn-black">К списку</a></div>';
+        }
+    }
+
+    window.handleAddToSetCart = function() {
+        if (!isLoggedIn) { alert('Пожалуйста, войдите в аккаунт.'); window.location.href = '/public/pages/login.html'; return; }
+        if (!currentSetData) return;
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var existingIdx = cart.findIndex(function(i) { return i.id === 'set-' + setId; });
+        if (existingIdx !== -1) { cart[existingIdx].count += 1; } 
+        else { cart.push({ id: 'set-' + setId, name: currentSetData.name, price: currentSetData.price, img: currentSetData.img || '', brand: 'Набор', count: 1 }); }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+        alert('Набор добавлен в корзину!');
+    };
+
+    window.toggleMenu = function() {
+        document.getElementById('mobileMenu').classList.toggle('active');
+        document.getElementById('burgerBtn').classList.toggle('active');
+    };
+
+    document.addEventListener('DOMContentLoaded', function() { updateCart(); loadSet(); checkAuth(); });
+})();
+</script>
+</body>
+</html>

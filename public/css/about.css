@@ -1,0 +1,28 @@
+.contacts-layout {
+    display: flex;
+    align-items: stretch;
+}
+
+.contacts-layout > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.contacts-layout > div:last-child {
+    flex: 1;
+    min-height: 400px;
+}
+
+.contacts-layout iframe {
+    min-height: 280px;
+}
+
+@media (max-width: 1024px) {
+    .contacts-layout {
+        flex-direction: column;
+    }
+
+    .contacts-layout > div:last-child {
+        min-height: 320px;
+    }
+}

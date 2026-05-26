@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали товара — Строй Мир</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/info_card.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="/public/pages/catalog.html">Каталог</a></li>
+                <li><a href="/public/pages/sets.html">Готовые наборы</a></li>
+                <li><a href="/public/pages/metals.html">Металлы</a></li>
+                <li><a href="/public/pages/calc.html">Калькулятор</a></li>
+                <li><a href="/public/pages/about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/public/pages/login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="/public/pages/cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+            
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Металлы</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    
+
+    <main class="product-info-page container">
+        <div class="product-view-layout">
+            <div class="product-gallery">
+                <div class="main-image-wrapper">
+                    <button class="slider-btn prev" id="prev-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <button class="slider-btn next" id="next-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                    <img id="product-img" src="" alt="Товар">
+                </div>
+                <div class="gallery-thumbs" id="thumbs-container"></div>
+            </div>
+
+            <div class="product-info-sidebar">
+                <div class="p-main-head">
+                    <span class="p-brand-badge" id="product-brand">BRAND</span>
+                    <h1 id="product-name">...</h1>
+                    <div class="p-rating-row">
+                        <span class="reviews-count">4.9 (120 отзывов)</span>
+                    </div>
+                </div>
+
+                <div class="p-price-block">
+                    <div class="current-price" id="product-price">0 ₽</div>
+                    <p class="price-sub">В наличии на складе: <b id="product-stock">0</b> шт.</p>
+                </div>
+
+                <div class="p-actions-row">
+                    <div class="quantity-stepper">
+                        <button type="button" id="step-down">—</button>
+                        <input type="number" id="qty-input" value="1" min="1" readonly>
+                        <button type="button" id="step-up">+</button>
+                    </div>
+                    <button class="btn btn-black btn-add-cart" onclick="handleAddToCart()">В корзину</button>
+                </div>
+
+                <div class="p-quick-features">
+                    <div class="q-feat"><span></span><div><b>Завтра</b><p>Доставка</p></div></div>
+                    <div class="q-feat"><span></span><div><b>2 года</b><p>Гарантия</p></div></div>
+                </div>
+
+                <div class="p-tabs-content">
+                    <h3>Описание</h3>
+                    <p id="product-desc">...</p>
+                    <h3>Характеристики</h3>
+                    <div class="p-specs-list">
+                        <div class="spec-row"><span>Категория</span><b id="product-cat">...</b></div>
+                        <div class="spec-row"><span>Артикул</span><b id="product-sku">...</b></div>
+                        <div class="spec-row"><span>Гарантия</span><b>24 месяца</b></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+        <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Металлы</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+(function() {
+    const sb = window.supabase.createClient(
+        'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+    );
+
+    let currentProduct = null;
+    let productImages = [];
+    let currentIndex = 0;
+    let isLoggedIn = false;
+
+    function updateCart() {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var total = cart.reduce(function(sum, item) { 
+            return sum + (Number(item.count) || 0); 
+        }, 0);
+        if (isNaN(total) || total < 0) {
+            localStorage.setItem('cart', '[]');
+            total = 0;
+        }
+        var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+        if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+    }
+
+    async function checkAuth() {
+        try {
+            var { data: { session } } = await sb.auth.getSession();
+            var user = session?.user;
+            var authBtn = document.getElementById('navAuthBtn');
+            var mobileAuthBtn = document.getElementById('mobileAuthBtn');
+            if (user && authBtn) {
+                isLoggedIn = true;
+                var [profileRes, roleRes] = await Promise.all([
+                    sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+                    sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+                ]);
+                var name = (profileRes.data?.full_name || user.email).split(' ')[0];
+                var role = roleRes.data?.role || 'user';
+                var targetPage = (role === 'admin') ? '/public/pages/admin.html' : '/public/pages/profile.html';
+
+                authBtn.innerHTML = name;
+                authBtn.href = targetPage;
+                if(window.__updateMobileAuth) window.__updateMobileAuth(name, targetPage);
+                if(mobileAuthBtn) { mobileAuthBtn.innerHTML = name; mobileAuthBtn.href = targetPage; }
+            }
+        } catch (e) { console.error('Auth error', e); }
+    }
+
+    async function fetchProduct() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let productId = urlParams.get('id');
+        
+        if (!productId) {
+            productId = window.location.hash.replace('#', '');
+        }
+
+        if (!productId) {
+            showError("Товар не выбран");
+            return;
+        }
+
+        
+        
+
+        console.log('Loading product ID:', productId);
+
+        try {
+            const { data: p, error } = await sb.from('products').select('*').eq('id', productId).single();
+            console.log('Supabase result:', p, error);
+            if (error || !p) throw error || new Error("Product not found");
+
+            currentProduct = p;
+            document.getElementById('product-name').innerText = p.name;
+            document.getElementById('product-price').innerText = p.price.toLocaleString() + ' ₽';
+            document.getElementById('product-brand').innerText = p.brand || 'Строй Мир';
+            document.getElementById('product-desc').innerText = p.description || 'Описание уточняется...';
+            document.getElementById('product-stock').innerText = p.stock || 0;
+            document.getElementById('product-cat').innerText = p.category_name || 'Товар';
+            document.getElementById('product-sku').innerText = 'ST-' + (1000 + p.id);
+
+            productImages = [p.img, p.img2 || p.img, p.img3 || p.img].filter(Boolean);
+            renderGallery();
+        } catch (err) {
+            console.error("Ошибка загрузки:", err);
+            showError("Товар не найден");
+        }
+    }
+
+    function showError(msg) {
+        document.querySelector('main').innerHTML = `<div class="container" style="text-align:center; padding:100px;"><h1>${msg}</h1><a href="catalog.html" class="btn btn-black">Вернуться в каталог</a></div>`;
+    }
+
+    function renderGallery() {
+        const container = document.getElementById('thumbs-container');
+        if (!container) return;
+        container.innerHTML = productImages.map((img, idx) => {
+            const clean = img.replace(/^\//, '').replace(/^img\//, '');
+            return `<div class="thumb ${idx === 0 ? 'active' : ''}" data-idx="${idx}" onclick="window.setSlide(${idx})"><img src="../../img/${clean}" alt=""></div>`;
+        }).join('');
+        window.setSlide(0); 
+    }
+
+    window.setSlide = function(idx) {
+        if (!productImages[idx]) return;
+        currentIndex = idx;
+        const clean = productImages[idx].replace(/^\//, '').replace(/^img\//, '');
+        const imgEl = document.getElementById('product-img');
+        imgEl.src = `../../img/${clean}`;
+        imgEl.style.display = 'block';
+        const thumbs = document.querySelectorAll('.thumb');
+        thumbs.forEach((t, i) => t.classList.toggle('active', i === idx));
+    };
+
+    window.handleAddToCart = function() {
+        if (!isLoggedIn) {
+            alert("Пожалуйста, войдите в аккаунт.");
+            window.location.href = 'login.html';
+            return;
+        }
+        const qty = parseInt(document.getElementById('qty-input').value) || 1;
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existing = cart.find(i => i.id == currentProduct.id);
+        if (existing) {
+            existing.count += qty;
+        } else {
+            cart.push({
+                id: currentProduct.id,
+                name: currentProduct.name,
+                price: currentProduct.price,
+                img: currentProduct.img,
+                brand: currentProduct.brand,
+                count: qty
+            });
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+        alert(`Товар «${currentProduct.name}» добавлен в корзину!`);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCart();
+        checkAuth();
+        fetchProduct();
+        
+        const qInput = document.getElementById('qty-input');
+        document.getElementById('step-up').onclick = () => { qInput.value = parseInt(qInput.value) + 1; };
+        document.getElementById('step-down').onclick = () => { if(qInput.value > 1) qInput.value = parseInt(qInput.value) - 1; };
+
+        document.getElementById('next-btn').onclick = () => { currentIndex = (currentIndex + 1) % productImages.length; window.setSlide(currentIndex); };
+        document.getElementById('prev-btn').onclick = () => { currentIndex = (currentIndex - 1 + productImages.length) % productImages.length; window.setSlide(currentIndex); };
+
+        const burger = document.getElementById('burgerBtn');
+        if (burger) {
+            burger.onclick = () => {
+                document.getElementById('mobileMenu').classList.toggle('active');
+            };
+        }
+    });
+
+})();
+</script>
+</body>
+</html>

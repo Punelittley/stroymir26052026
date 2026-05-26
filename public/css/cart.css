@@ -1,0 +1,148 @@
+.cart-page { padding: 40px 0; }
+ 
+ .cart-header { 
+     display: flex; justify-content: space-between; align-items: flex-start;
+     margin-bottom: 50px; padding-bottom: 30px; border-bottom: 1px solid var(--border);
+ }
+ .header-text h1 { font-size: 42px; font-weight: 800; letter-spacing: -2.5px; }
+ .header-text h1 span { color: var(--accent); }
+ .header-text p { color: var(--muted); font-weight: 600; margin-top: 5px; }
+ 
+ .clear-btn { background: none; border: none; color: var(--muted); font-weight: 700; cursor: pointer; padding-top: 15px; }
+ .clear-btn:hover { color: #ff3b30; }
+ 
+ .cart-layout { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: flex-start; }
+
+ .cart-items { display: flex; flex-direction: column; gap: 15px; }
+ 
+ .cart-card {
+     display: flex; align-items: center; gap: 30px;
+     background: #fff; border: 1px solid var(--border);
+     padding: 25px; border-radius: 28px; transition: 0.3s;
+ }
+ .cart-card:hover { border-color: var(--muted); }
+ 
+ .card-img { width: 110px; height: 110px; background: var(--bg-light); border-radius: 20px; padding: 10px; flex-shrink: 0; }
+ .card-img img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+ 
+ .card-info { flex: 1; }
+ .card-brand { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; }
+ .card-info h4 { font-size: 18px; font-weight: 700; margin: 5px 0 15px; letter-spacing: -0.5px; }
+ 
+ .card-actions { display: flex; align-items: center; gap: 20px; }
+
+ .qty-stepper { display: flex; align-items: center; background: var(--bg-light); border-radius: 12px; padding: 4px; }
+ .qty-stepper button { width: 34px; height: 34px; border: none; background: none; font-size: 20px; cursor: pointer; transition: 0.2s; }
+ .qty-stepper button:hover { color: var(--accent); }
+ .qty-stepper input { width: 40px; border: none; background: none; text-align: center; font-weight: 800; font-size: 16px; font-family: inherit; }
+ 
+ .del-btn { background: none; border: none; color: #ff3b30; font-weight: 700; font-size: 13px; cursor: pointer; opacity: 0.5; }
+ .del-btn:hover { opacity: 1; }
+ 
+ .card-price { font-size: 22px; font-weight: 800; letter-spacing: -1px; min-width: 130px; text-align: right; }
+
+ .cart-summary { position: sticky; top: 110px; }
+ .summary-card { 
+     background: #fff; border: 1px solid var(--border); padding: 40px; 
+     border-radius: var(--radius-lg); box-shadow: 0 40px 80px rgba(0,0,0,0.02);
+ }
+ .summary-card h3 { font-size: 24px; font-weight: 800; margin-bottom: 30px; letter-spacing: -1px; }
+ 
+ .summary-details { display: flex; flex-direction: column; gap: 18px; margin-bottom: 35px; }
+ .s-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 600; color: var(--muted); }
+ .s-row span:last-child { color: #000; font-weight: 700; }
+
+ .promo-section { margin-bottom: 35px; border-top: 1px solid var(--bg-light); padding-top: 30px; }
+ .promo-section label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 12px; text-transform: uppercase; }
+ .promo-input-group { display: flex; gap: 10px; }
+ .promo-input-group input { 
+     flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--border); 
+     background: var(--bg-light); font-family: inherit; font-weight: 600;
+ }
+ .promo-input-group button { background: #000; color: #fff; border: none; padding: 0 20px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+ .promo-input-group button:hover { opacity: 0.8; }
+ .promo-hint { font-size: 12px; margin-top: 8px; font-weight: 700; }
+ 
+ .summary-total { border-top: 1px solid var(--border); padding-top: 30px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+ .summary-total span { font-size: 14px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+ .summary-total h2 { font-size: 44px; font-weight: 800; color: #000; letter-spacing: -2px; line-height: 1; }
+ 
+ .payment-badges { display: flex; gap: 15px; justify-content: center; margin-top: 25px; opacity: 0.3; font-weight: 900; font-size: 12px; }
+
+ .empty-cart-msg { text-align: center; padding: 120px 40px; }
+ .empty-cart-msg h2 { font-size: 32px; margin-bottom: 15px; }
+ .empty-cart-msg p { color: var(--muted); margin-bottom: 40px; }
+
+@media (max-width: 1100px) {
+     .cart-layout { grid-template-columns: 1fr; }
+     .cart-summary { position: static; }
+ }
+ 
+ @media (max-width: 768px) {
+     .cart-header { 
+         flex-direction: column; 
+         gap: 20px; 
+         align-items: flex-start;
+     }
+     .header-text h1 { font-size: 32px; }
+     
+     .cart-card {
+         flex-direction: column;
+         align-items: flex-start;
+         gap: 20px;
+         padding: 20px;
+     }
+     
+     .card-img { 
+         width: 100%; 
+         height: 180px; 
+         display: flex;
+         align-items: center;
+         justify-content: center;
+     }
+     
+     .card-info { width: 100%; }
+     
+     .card-price { 
+         width: 100%; 
+         text-align: left; 
+         margin-top: 10px;
+         padding-top: 15px;
+         border-top: 1px solid var(--border);
+     }
+     
+     .summary-card { padding: 30px; }
+     .summary-total h2 { font-size: 36px; }
+ }
+ 
+ @media (max-width: 480px) {
+     .cart-page { padding: 20px 0; }
+     
+     .header-text h1 { font-size: 28px; }
+     
+     .cart-card { padding: 16px; border-radius: 20px; }
+     
+     .card-actions { 
+         flex-direction: column; 
+         align-items: flex-start; 
+         gap: 12px;
+         width: 100%;
+     }
+     
+     .qty-stepper { width: 100%; justify-content: center; }
+     
+     .summary-card { padding: 24px; }
+     .summary-card h3 { font-size: 20px; }
+     .summary-total h2 { font-size: 32px; }
+     
+     .promo-input-group { 
+         flex-direction: column; 
+     }
+     .promo-input-group button { 
+         padding: 14px; 
+         width: 100%;
+     }
+     
+     .empty-cart-msg { padding: 60px 20px; }
+     .empty-cart-msg h2 { font-size: 24px; }
+ }

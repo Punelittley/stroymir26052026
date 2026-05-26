@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас — Строй Мир</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/about.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+
+<body style="background: #f4f7f9;">
+
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="/public/pages/catalog.html">Каталог</a></li>
+                <li><a href="/public/pages/sets.html">Готовые наборы</a></li>
+                <li><a href="/public/pages/metals.html">Сдать металл</a></li>
+                <li><a href="/public/pages/calc.html">Калькулятор</a></li>
+                <li><a href="/public/pages/about.html" class="active">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/public/pages/login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="/public/pages/cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Сдать металл</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html" class="active">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    <main class="contacts-layout" style="min-height: calc(100vh - 160px);">
+
+        <div
+            style="flex: 1; padding: 60px; padding-left: max(60px, calc((100vw - 1200px) / 2)); display: flex; flex-direction: column; justify-content: center; background: #fff;">
+            <p
+                style="font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px;">
+                Адрес</p>
+            <h1
+                style="font-size: 2.2rem; font-weight: 400; color: #002147; margin-bottom: 40px; line-height: 1.3;">
+                Магазин «Строй Мир», с. Ташла,<br>Оренбургская область, ул. Дружбы, 34
+            </h1>
+
+            <img src="../../img/kontakt.png" alt="Контакты Строй Мир"
+                style="width: 100%; height: 350px; object-fit: cover; margin-bottom: 40px; border: 1px solid #eee;">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                <div>
+                    <p
+                        style="font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">
+                        Режим работы</p>
+                    <p style="font-size: 1.05rem; color: #444; line-height: 1.6;">С 09:00 до 17:00 —
+                        будни<br>Суббота и воскресенье — выходной</p>
+                </div>
+                <div>
+                    <p
+                        style="font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">
+                        Телефоны</p>
+                    <p style="font-size: 1.05rem; color: #444; margin-bottom: 8px;"><a href="tel:+73534721569">8 (35347) 2-15-69</a> — магазин</p>
+                    <p style="font-size: 1.05rem; color: #444; margin-bottom: 20px;"><a href="tel:+73534722869">8 (35347) 2-28-69</a> — отдел продаж</p>
+
+                    <p
+                        style="font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px;">
+                        ВКонтакте</p>
+                    <p style="font-size: 1.05rem; color: #444;"><a href="https://vk.ru/batytin56" target="_blank" rel="noopener">Группа ВКонтакте</a></p>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; display: flex; gap: 10px;">
+            </div>
+        </div>
+
+        <div style="flex: 1; min-height: 100%;">
+            <iframe src="https://yandex.ru/map-widget/v1/?text=с.+Ташла,+ул.+Дружбы,+34&z=16" width="100%"
+                height="100%" frameborder="0" allowfullscreen="true" style="border: none; display: block;"></iframe>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Сдать металл</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 (35347) 2-15-69</p>
+                <span class="contact-label">ВКонтакте</span>
+                <p><a href="https://vk.ru/batytin56" target="_blank" rel="noopener">Группа ВКонтакте</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        const sb = window.supabase.createClient(
+            'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+        );
+
+        function updateCart() {
+            var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            var total = cart.reduce(function(sum, item) {
+                return sum + (Number(item.count) || 0);
+            }, 0);
+            if (isNaN(total) || total < 0) {
+                localStorage.setItem('cart', '[]');
+                total = 0;
+            }
+            var el = document.getElementById('cartCount');
+            if (el) el.innerText = total;
+            if (window.__updateMobileCart) window.__updateMobileCart(total);
+        }
+
+        async function checkAuth() {
+            try {
+                var { data: { session } } = await sb.auth.getSession();
+                var user = session?.user;
+                var authBtn = document.getElementById('navAuthBtn');
+                var mobileAuthBtn = document.getElementById('mobileAuthBtn');
+                if (user && authBtn) {
+                    var [profileRes, roleRes] = await Promise.all([
+                        sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+                        sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+                    ]);
+                    var name = (profileRes.data?.full_name || user.email).split(' ')[0];
+                    var role = roleRes.data?.role || 'user';
+                    var targetPage = (role === 'admin') ? '/public/pages/admin.html' : '/public/pages/profile.html';
+                    authBtn.innerHTML = name;
+                    authBtn.href = targetPage;
+                    if (window.__updateMobileAuth) window.__updateMobileAuth(name, targetPage);
+                    if (mobileAuthBtn) { mobileAuthBtn.innerHTML = name; mobileAuthBtn.href = targetPage; }
+                }
+            } catch (e) { console.error('Auth check error', e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkAuth();
+            updateCart();
+        });
+    })();
+    </script>
+</body>
+
+</html>

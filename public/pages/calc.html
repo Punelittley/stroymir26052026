@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор сметы — MODERN STROY</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/calc.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="/public/pages/catalog.html">Каталог</a></li>
+                <li><a href="/public/pages/sets.html">Готовые наборы</a></li>
+                <li><a href="/public/pages/metals.html">Сдать металл</a></li>
+                <li><a href="/public/pages/calc.html" class="active">Калькулятор</a></li>
+                <li><a href="/public/pages/about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/public/pages/login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="/public/pages/cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+            
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Металлы</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    
+
+    <main class="calc-container container">
+        <div class="page-header">
+            <h1>Калькулятор сметы</h1>
+            <p>Рассчитайте необходимое количество материалов за несколько секунд.</p>
+        </div>
+
+        <div class="calc-grid">
+            <div class="calc-steps">
+                <div class="step-box">
+                    <h3>1. Выберите категорию</h3>
+                    <select id="categorySelect" onchange="loadProducts()">
+                        <option value="Материалы">Материалы</option>
+                        <option value="Инструмент">Инструмент</option>
+                        <option value="Электрика">Электрика</option>
+                    </select>
+                </div>
+
+                <div class="step-box">
+                    <h3>2. Выберите товар</h3>
+                    <div class="product-list" id="product-list">
+                        
+                    </div>
+                </div>
+
+                <div class="step-box">
+                    <h3>3. Укажите площадь (м²)</h3>
+                    <input type="number" id="areaInput" placeholder="Например: 45" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="calc-result-box">
+                <div class="result-card">
+                    <h3>Итоговый расчет</h3>
+                    <div id="summary-info">
+                        <p style="color: #666;">Выберите товар и укажите площадь для расчета.</p>
+                    </div>
+                    <div class="total-price">
+                        <span>Сумма:</span>
+                        <strong id="totalDisplay">0 ₽</strong>
+                    </div>
+                    <button class="btn btn-black btn-full" id="addCartBtn" onclick="handleCart()" disabled>Добавить в корзину</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+        <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Металлы</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        var sb = window.supabase.createClient(
+            'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+        );
+        var productsData = [];
+        var selectedProduct = null;
+
+        function updateCart() {
+            var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            var total = cart.reduce(function(sum, item) { 
+                return sum + (Number(item.count) || 0); 
+            }, 0);
+            if (isNaN(total) || total < 0) {
+                localStorage.setItem('cart', '[]');
+                total = 0;
+            }
+            var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+            if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+        }
+
+        async function checkAuth() {
+            try {
+                var { data: { session } } = await sb.auth.getSession();
+                var user = session?.user;
+                var authBtn = document.getElementById('navAuthBtn');
+                if (user && authBtn) {
+                    var results = await Promise.all([
+                        sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+                        sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+                    ]);
+                    var name = (results[0].data && results[0].data.full_name) || user.email;
+                    var role = (results[1].data && results[1].data.role) || 'user';
+                    var targetPage = (role === 'admin') ? 'admin.html' : 'profile.html';
+                    authBtn.innerHTML = '' + name.split(' ')[0];
+                    authBtn.href = targetPage;
+                    if(window.__updateMobileAuth) window.__updateMobileAuth(authBtn.innerHTML, authBtn.href);
+                }
+            } catch (e) { console.log("Гость"); }
+        }
+
+        async function loadProducts() {
+            var category = document.getElementById('categorySelect').value;
+            var container = document.getElementById('product-list');
+            try {
+                var { data: allProducts, error } = await sb.from('products').select('*, categories(name)');
+                if (error) throw error;
+                productsData = allProducts
+                    .map(function(p) { 
+                        return Object.assign({}, p, { category_name: p.categories ? p.categories.name : '' }); 
+                    })
+                    .filter(function(p) { return p.category_name === category; });
+                
+                if (productsData.length === 0) { 
+                    container.innerHTML = "<p>В данной категории товары не найдены.</p>"; 
+                    return; 
+                }
+                container.innerHTML = productsData.map(function(p) {
+                    return '<div class="calc-item-card" id="p-' + p.id + '" onclick="selectProduct(\'' + p.id + '\')">' +
+                        '<div class="calc-item-img"><img src="../../img/' + p.img.replace(/^\//, '').replace(/^img\//, '') + '" alt="' + p.name + '"></div>' +
+                        '<div class="calc-item-info"><b>' + p.name + '</b><span>' + p.price.toLocaleString() + ' ₽ / ед.</span></div></div>';
+                }).join('');
+                window.selectProduct(productsData[0].id);
+            } catch (err) { container.innerHTML = "<p>Ошибка загрузки товаров.</p>"; }
+        }
+
+        window.selectProduct = function(id) {
+            selectedProduct = productsData.find(function(p) { return p.id == id; });
+            document.querySelectorAll('.calc-item-card').forEach(function(c) { c.classList.remove('active'); });
+            var selectedCard = document.getElementById('p-' + id);
+            if (selectedCard) selectedCard.classList.add('active');
+            calculate();
+        };
+
+        window.calculate = function() {
+            if (!selectedProduct) return;
+            var area = parseFloat(document.getElementById('areaInput').value) || 0;
+            var summaryInfo = document.getElementById('summary-info');
+            var totalDisplay = document.getElementById('totalDisplay');
+            var addBtn = document.getElementById('addCartBtn');
+            var ratio = 0.1;
+            if (selectedProduct.category_name === 'Материалы') ratio = 0.25;
+            if (selectedProduct.category_name === 'Электрика') ratio = 0.125;
+            var qty = Math.ceil(area * ratio);
+            var total = qty * selectedProduct.price;
+            summaryInfo.innerHTML = '<div class="sum-row"><span>Выбран:</span> <b>' + selectedProduct.name + '</b></div>' +
+                '<div class="sum-row"><span>Необходимо:</span> <b>' + qty + ' шт.</b></div>' +
+                '<div class="sum-row"><span>Цена:</span> <b>' + selectedProduct.price.toLocaleString() + ' ₽</b></div>';
+            totalDisplay.innerText = total.toLocaleString() + ' ₽';
+            addBtn.disabled = false;
+        };
+
+        window.handleCart = function() {
+            if (!selectedProduct) return;
+            var area = parseFloat(document.getElementById('areaInput').value) || 0;
+            var ratio = 0.1;
+            if (selectedProduct.category_name === 'Материалы') ratio = 0.25;
+            if (selectedProduct.category_name === 'Электрика') ratio = 0.125;
+            var qty = Math.ceil(area * ratio);
+            var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            var existing = cart.find(function(item) { return item.id == selectedProduct.id; });
+            if (existing) { 
+                existing.count += qty; 
+            } else { 
+                cart.push({ 
+                    id: selectedProduct.id, 
+                    name: selectedProduct.name, 
+                    brand: selectedProduct.brand, 
+                    price: selectedProduct.price, 
+                    img: selectedProduct.img, 
+                    count: qty 
+                }); 
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+            alert('Смета успешно сформирована и добавлена в корзину!');
+        };
+
+        window.loadProducts = loadProducts;
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            checkAuth();
+            updateCart();
+        });
+    })();
+    </script>
+</body>
+</html>

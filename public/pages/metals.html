@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прием металлолома — MODERN STROY</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/metals.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="catalog.html">Каталог</a></li>
+                <li><a href="sets.html">Готовые наборы</a></li>
+                <li><a href="metals.html" class="active">Сдать металл</a></li>
+                <li><a href="calc.html">Калькулятор</a></li>
+                <li><a href="about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="catalog.html">Каталог</a>
+            <a href="sets.html">Готовые наборы</a>
+            <a href="metals.html">Сдать металл</a>
+            <a href="calc.html">Калькулятор</a>
+            <a href="about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    <main class="container metals-page">
+        <div class="page-header">
+            <h1>Прием металлолома</h1>
+            <p>Сдавайте металл выгодно. Мы принимаем лом черных и цветных металлов по лучшим ценам в регионе. Расчет на месте.</p>
+        </div>
+
+        <div class="calc-grid">
+            <div class="metal-config">
+                <div class="config-section">
+                    <h3>1. Категория лома</h3>
+                    <div class="type-grid">
+                        <div class="type-card active" onclick="setMetalType('black', this)">
+                            <span>Черный металл</span>
+                        </div>
+                        <div class="type-card" onclick="setMetalType('copper', this)">
+                            <span>Медь</span>
+                        </div>
+                        <div class="type-card" onclick="setMetalType('aluminum', this)">
+                            <span>Алюминий</span>
+                        </div>
+                        <div class="type-card" onclick="setMetalType('brass', this)">
+                            <span>Латунь / Бронза</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>2. Вес металла</h3>
+                    <div id="dynamic-inputs" class="input-grid" style="grid-template-columns: 1fr;">
+                        <div class="input-group">
+                            <label>Общий вес (кг)</label>
+                            <input type="number" id="scrap-weight" value="100" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>3. Условия приема</h3>
+                    <p style="font-size: 14px; color: var(--muted); line-height: 1.6;">
+                        • Принимаем лом от 1 кг (цветной) и от 50 кг (черный).<br>
+                        • Требуется паспорт для оформления сделки.<br>
+                        • Возможен самовывоз при объеме от 500 кг.
+                    </p>
+                </div>
+            </div>
+
+            <div class="result-sidebar">
+                <div class="result-card">
+                    <h2>К выплате (ориентировочно)</h2>
+                    <div class="weight-display">
+                        <span id="res-price">2 500</span><span class="unit">₽</span>
+                    </div>
+                    <div class="price-display" id="res-info">
+                        за 100 кг лома
+                    </div>
+                    <button class="btn btn-full" style="background: #fff; color: #000; border: 1px solid var(--border);" onclick="sendScrapOrder()">Оформить заявку</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="catalog.html">Каталог</a>
+                <a href="sets.html">Готовые наборы</a>
+                <a href="metals.html">Сдать металл</a>
+                <a href="calc.html">Калькулятор</a>
+                <a href="about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        const sb = window.supabase.createClient(
+            'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+        );
+
+        let currentType = 'black';
+        let scrapRates = { 
+            black: 25,     
+            copper: 750, 
+            aluminum: 120, 
+            brass: 450 
+        };
+
+        async function fetchRates() {
+            try {
+                const { data, error } = await sb.from('metal_rates').select('*');
+                if (data && data.length > 0) {
+                    data.forEach(r => {
+                        if (scrapRates[r.code] !== undefined) scrapRates[r.code] = r.price_per_ton; 
+                    });
+                }
+            } catch (e) { console.log("Using default rates"); }
+        }
+
+        window.setMetalType = function(type, el) {
+            currentType = type;
+            document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            calculate();
+        };
+
+        window.calculate = function() {
+            const weight = parseFloat(document.getElementById('scrap-weight').value) || 0;
+            const pricePerKg = scrapRates[currentType] || 0;
+            const total = weight * pricePerKg;
+
+            document.getElementById('res-price').innerText = total.toLocaleString();
+            document.getElementById('res-info').innerText = 'за ' + weight + ' кг лома (' + pricePerKg + ' ₽/кг)';
+        };
+
+        window.sendScrapOrder = async function() {
+            try {
+                const { data: { session } } = await sb.auth.getSession();
+                if (!session) {
+                    alert('Для оформления заявки необходимо войти в аккаунт.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const weight = parseFloat(document.getElementById('scrap-weight').value) || 0;
+                const pricePerKg = scrapRates[currentType] || 0;
+                const total = weight * pricePerKg;
+
+                const { error } = await sb.from('scrap_submissions').insert({
+                    user_id: session.user.id,
+                    metal_type: currentType,
+                    weight: weight,
+                    price_per_kg: pricePerKg,
+                    total_sum: total,
+                    status: 'pending'
+                });
+
+                if (error) throw error;
+
+                alert('Заявка на сдачу металла успешно отправлена! Вы можете отследить статус в личном кабинете.');
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка при отправке заявки: ' + err.message);
+            }
+        };
+
+        function updateCart() {
+            var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            var total = cart.reduce(function(sum, item) { return sum + (Number(item.count) || 0); }, 0);
+            var el = document.getElementById('cartCount');
+            if (el) el.innerText = total;
+            if(window.__updateMobileCart) window.__updateMobileCart(total);
+        }
+
+        async function checkAuth() {
+            try {
+                var { data: { session } } = await sb.auth.getSession();
+                var user = session?.user;
+                var authBtn = document.getElementById('navAuthBtn');
+                if (user && authBtn) {
+                    var [profileRes, roleRes] = await Promise.all([
+                        sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+                        sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+                    ]);
+                    var name = (profileRes.data?.full_name || user.email).split(' ')[0];
+                    var role = roleRes.data?.role || 'user';
+                    var targetPage = (role === 'admin') ? '/public/pages/admin.html' : '/public/pages/profile.html';
+                    authBtn.innerHTML = name;
+                    authBtn.href = targetPage;
+                    if(window.__updateMobileAuth) window.__updateMobileAuth(name, targetPage);
+                }
+            } catch (e) { console.error('Auth check error', e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchRates();
+            calculate();
+            checkAuth();
+            updateCart();
+        });
+    })();
+    </script>
+</body>
+</html>

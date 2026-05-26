@@ -1,0 +1,247 @@
+ <!DOCTYPE html>
+ <html lang="ru">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Оплата заказа — Строй Мир</title>
+     <link rel="stylesheet" href="../css/common.css">
+     <link rel="stylesheet" href="../css/checkout.css">
+     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+     <script>
+    function updateCart() {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var total = cart.reduce(function(sum, item) { 
+            return sum + (Number(item.count) || 0); 
+        }, 0);
+        var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+        if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+    }
+    updateCart();
+    </script>
+     <script src="../js/mobile-menu.js" defer></script>
+</head>
+ <body>
+     <nav class="navbar">
+         <div class="container flex-nav">
+             <a href="/" class="logo">Строй Мир<span>.</span></a>
+             <ul class="nav-links">
+                 <li><a href="catalog.html">Каталог</a></li>
+                 <li><a href="sets.html">Готовые наборы</a></li>
+                 <li><a href="brands.html">Бренды</a></li>
+                 <li><a href="calc.html">Калькулятор</a></li>
+                 <li><a href="about.html">О нас</a></li>
+             </ul>
+             <div class="nav-actions">
+                 <a href="profile.html" class="login-btn active" id="navAuthBtn">Профиль</a>
+                 <div class="cart-pill">
+                     <span>Корзина</span>
+                     <div class="count" id="cartCount">0</div>
+                 </div>
+             </div>
+         </div>
+     </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/brands.html">Бренды</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+  
+     <main class="checkout-page container">
+         <header class="checkout-header">
+             <h1>Оформление <span>заказа</span></h1>
+             <p>Безопасная оплата заказа банковской картой</p>
+         </header>
+  
+         <form id="paymentForm" class="checkout-layout">
+             <div class="checkout-forms">
+                 <section class="checkout-section">
+                     <div class="section-head"><span class="step">1</span><h3>Адрес доставки</h3></div>
+                     <div class="grid-inputs">
+                         <div class="input-group full">
+                             <label>Получатель (ФИО)</label>
+                             <input type="text" id="cust-name" placeholder="Иванов Иван" required>
+                         </div>
+                         <div class="input-group">
+                             <label>Телефон</label>
+                             <input type="tel" id="cust-phone" placeholder="+7..." required>
+                         </div>
+                         <div class="input-group">
+                             <label>Город</label>
+                             <input type="text" id="cust-city" placeholder="Москва" required>
+                         </div>
+                         <div class="input-group full">
+                             <label>Точный адрес</label>
+                             <input type="text" id="cust-addr" placeholder="Улица, дом, квартира" required>
+                         </div>
+                     </div>
+                 </section>
+  
+                 <section class="checkout-section">
+                     <div class="section-head"><span class="step">2</span><h3>Данные карты</h3></div>
+                     <div class="card-mockup">
+                         <div class="card-front">
+                             <div class="card-chip"></div>
+                             <div class="card-number-display" id="card-num-display">•••• •••• •••• ••••</div>
+                         </div>
+                     </div>
+                     <div class="grid-inputs">
+                         <div class="input-group full">
+                             <label>Номер карты</label>
+                             <input type="text" id="card-num" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                         </div>
+                         <div class="input-group">
+                             <label>Срок действия</label>
+                             <input type="text" id="card-date" placeholder="ММ/ГГ" maxlength="5" required>
+                         </div>
+                         <div class="input-group">
+                             <label>CVC / CVV</label>
+                             <input type="password" id="card-cvv" placeholder="***" maxlength="3" required>
+                         </div>
+                     </div>
+                 </section>
+             </div>
+  
+             <aside class="order-summary-sidebar">
+                 <div class="summary-sticky-card">
+                     <h3>Ваш заказ</h3>
+                     <div id="orderItemsSummary" class="mini-items-list"></div>
+                     <div class="final-price-box">
+                         <span>К оплате:</span>
+                         <h2 id="finalTotal">0 ₽</h2>
+                     </div>
+                     <button type="submit" class="btn btn-black btn-full">Оплатить и заказать</button>
+                 </div>
+             </aside>
+         </form>
+     </main>
+  
+         <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/brands.html">Бренды</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+  
+     <script>
+     (function() {
+         var sb = window.supabase.createClient(
+             'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+         );
+         var cart = JSON.parse(localStorage.getItem('cart')) || [];
+         var appliedPromo = JSON.parse(localStorage.getItem('appliedPromo')) || null;
+ 
+         async function checkAuth() {
+             var { data: { session } } = await sb.auth.getSession();
+             if (!session?.user) { window.location.href = 'login.html'; return; }
+             var { data: profile } = await sb.from('profiles').select('full_name').eq('user_id', session.user.id).single();
+             if (profile) document.getElementById('navAuthBtn').innerText = (profile.full_name || '').split(' ')[0];
+         }
+ 
+         function renderSummary() {
+             var container = document.getElementById('orderItemsSummary');
+             var total = 0;
+             container.innerHTML = cart.map(function(item) {
+                 total += item.price * item.count;
+                 return '<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:14px;">' +
+                        '<span>' + item.name + ' (x' + item.count + ')</span>' +
+                        '<b>' + (item.price * item.count).toLocaleString() + ' ₽</b></div>';
+             }).join('');
+             
+             var subtotal = total;
+             if (appliedPromo) {
+                 var discount = subtotal * appliedPromo.discount;
+                 total = subtotal - discount;
+                 container.innerHTML += '<div style="display:flex;justify-content:space-between;margin-top:15px;padding-top:15px;border-top:1px solid #eee;color:#10b981;">' +
+                        '<span>Скидка (' + appliedPromo.code + ')</span>' +
+                        '<b>-' + discount.toLocaleString() + ' ₽</b></div>';
+             }
+             
+             document.getElementById('finalTotal').innerText = total.toLocaleString() + ' ₽';
+         }
+ 
+         document.getElementById('card-num').oninput = function(e) {
+             var v = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+             e.target.value = v;
+             document.getElementById('card-num-display').innerText = v || "•••• •••• •••• ••••";
+         };
+ 
+         document.getElementById('paymentForm').onsubmit = async function(e) {
+             e.preventDefault();
+             var total = cart.reduce(function(sum, i) { return sum + (i.price * i.count); }, 0);
+             var { data: { session } } = await sb.auth.getSession();
+             if (!session?.user) return;
+             var itemsJson = cart.map(function(i) { return { name: i.name, price: i.price, count: i.count }; });
+             var { data, error } = await sb.from('orders').insert({
+                 user_id: session.user.id,
+                 items: itemsJson,
+                 total_price: total,
+                 total: total,
+                 status: 'new',
+                 delivery_type: 'delivery',
+                 payment_method: 'card'
+             }).select('id').single();
+             if (error) {
+                 console.error('Ошибка оформления:', error);
+                 alert('Ошибка при оформлении заказа: ' + (error.message || 'Попробуйте позже'));
+             } else {
+                 if (appliedPromo) {
+                     
+                     try {
+                         await sb.rpc('increment_promo_usage', { p_code: appliedPromo.code });
+                         
+                         const { data: pData } = await sb.from('promocodes').select('used_count').eq('code', appliedPromo.code).single();
+                         if (pData) {
+                             await sb.from('promocodes').update({ used_count: pData.used_count + 1 }).eq('code', appliedPromo.code);
+                         }
+                     } catch (e) { console.error('Failed to increment promo usage', e); }
+                 }
+                 alert('Заказ успешно оплачен!');
+                 localStorage.removeItem('cart');
+                 localStorage.removeItem('appliedPromo');
+                 window.location.href = 'profile.html';
+             }
+         };
+ 
+         window.onload = function() { checkAuth(); renderSummary(); updateCart(); };
+     })();
+     </script>
+ </body>
+ </html>

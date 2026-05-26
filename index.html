@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MODERN STROY — Экосистема профессионального созидания</title>
+    <link rel="stylesheet" href="public/css/common.css">
+    <link rel="stylesheet" href="public/css/index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="public/js/mobile-menu.js" defer></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="public/pages/catalog.html">Каталог</a></li>
+                <li><a href="public/pages/sets.html">Готовые наборы</a></li>
+                <li><a href="public/pages/metals.html">Сдать металл</a></li>
+                <li><a href="public/pages/calc.html">Калькулятор</a></li>
+                <li><a href="public/pages/about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="public/pages/login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="public/pages/cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="public/pages/catalog.html">Каталог</a>
+            <a href="public/pages/sets.html">Готовые наборы</a>
+            <a href="public/pages/metals.html">Сдать металл</a>
+            <a href="public/pages/calc.html">Калькулятор</a>
+            <a href="public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+
+    <header class="hero" style="background: url('img/dom.jpg') center/cover no-repeat; padding: 140px 0; text-align: center; position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.7);"></div>
+        <div class="container" style="position: relative; z-index: 10;">
+            <h1 style="font-size: 46px; font-weight: 800; color: #000; margin-bottom: 20px;">Строй Мир</h1>
+            <p style="font-size: 20px; color: #222; max-width: 700px; margin: 0 auto; line-height: 1.6;">Платформа для профессионалов и тех, кто делает ремонт сам. Качество, проверенное временем и тысячами объектов по всей стране.</p>
+        </div>
+    </header>
+
+
+    <section class="about-section">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2>Делаем <span>ремонт</span> <br>проще.</h2>
+                    <p>Строй Мир — современный магазин стройматериалов. Мы помогаем покупать всё необходимое быстро, выгодно и без лишних нервов.</p>
+                    <div class="values-list">
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="/img/magaz.jpg" alt="Construction" class="rounded-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="brands-bar">
+        <div class="container brands-wrapper">
+            <div class="brand-name">BOSCH</div>
+            <div class="brand-name">MAKITA</div>
+            <div class="brand-name">DEWALT</div>
+            <div class="brand-name">KNAUF</div>
+            <div class="brand-name">METABO</div>
+            <div class="brand-name">HILTI</div>
+        </div>
+    </section>
+
+    <section class="bento-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Категории <span>будущего</span></h2>
+                <p>Интеллектуальная сортировка для вашего удобства</p>
+            </div>
+            <div class="bento-grid">
+                <div class="bento-card bg-blue">
+                    <div class="bento-content">
+                        <span class="bento-tag">Smart Home</span>
+                        <h3>Электрика</h3>
+                        <p>Автоматика и системы контроля</p>
+                    </div>
+                    <a href="public/pages/catalog.html" class="bento-link">→</a>
+                </div>
+                <div class="bento-card tall bg-orange">
+                    <div class="bento-content">
+                        <span class="bento-tag">Pro Tool</span>
+                        <h3>Инструмент</h3>
+                        <p>Профессиональное оборудование</p>
+                    </div>
+                    <a href="public/pages/catalog.html" class="bento-link">→</a>
+                </div>
+                <div class="bento-card wide bg-gray">
+                    <div class="bento-content">
+                        <span class="bento-tag">Interior</span>
+                        <h3>Отделка</h3>
+                        <p>Материалы для финишных работ</p>
+                    </div>
+                    <a href="public/pages/catalog.html" class="bento-link">→</a>
+                </div>
+                <div class="bento-card bg-green">
+                    <div class="bento-content">
+                        <span class="bento-tag">Exterior</span>
+                        <h3>Сад</h3>
+                        <p>Все для загородного уюта</p>
+                    </div>
+                    <a href="public/pages/catalog.html" class="bento-link">→</a>
+                </div>
+                <div class="bento-card wide bg-purple">
+                    <div class="bento-content">
+                        <span class="bento-tag">Light System</span>
+                        <h3>Освещение</h3>
+                        <p>Дизайнерский свет и умные системы</p>
+                    </div>
+                    <a href="public/pages/catalog.html" class="bento-link">→</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="products-section">
+        <div class="container">
+            <div class="flex-header">
+                <h2>Популярные товары</h2>
+                <a href="public/pages/catalog.html" class="btn-text">Весь каталог →</a>
+            </div>
+            <div class="product-grid" id="popularProducts">
+                <div class="loading-placeholder">Загрузка товаров...</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Сдать металл</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    var sb = window.supabase.createClient(
+        'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+    );
+
+    async function renderAuthButton(user) {
+        var authBtn = document.getElementById('navAuthBtn');
+        var mobileAuthBtn = document.getElementById('mobileAuthBtn');
+        if (!authBtn) return;
+
+        if (!user) {
+            authBtn.innerHTML = 'Войти';
+                    authBtn.href = 'public/pages/login.html';
+                    if(window.__updateMobileAuth) window.__updateMobileAuth(authBtn.innerHTML, authBtn.href);
+            authBtn.style.color = '';
+            authBtn.style.fontWeight = '';
+            if (mobileAuthBtn) {
+                mobileAuthBtn.innerHTML = 'Войти';
+                mobileAuthBtn.href = 'public/pages/login.html';
+            }
+            return;
+        }
+
+        var results = await Promise.all([
+            sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+            sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+        ]);
+
+        var profile = results[0].data;
+        var roleData = results[1].data;
+        var name = (profile && profile.full_name) || user.email || 'Профиль';
+        var role = (roleData && roleData.role) || 'user';
+        var displayName = name.split(' ')[0];
+        var targetHref = role === 'admin' ? 'public/pages/admin.html' : 'public/pages/profile.html';
+
+        authBtn.innerHTML = displayName;
+                    authBtn.href = targetHref;
+                    if(window.__updateMobileAuth) window.__updateMobileAuth(authBtn.innerHTML, authBtn.href);
+        authBtn.style.color = "var(--accent)";
+        authBtn.style.fontWeight = "800";
+
+        if (mobileAuthBtn) {
+            mobileAuthBtn.innerHTML = displayName;
+            mobileAuthBtn.href = targetHref;
+        }
+    }
+
+    function updateCart() {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var total = cart.reduce(function(sum, item) { 
+            return sum + (Number(item.count) || 0); 
+        }, 0);
+        if (isNaN(total) || total < 0) {
+            localStorage.setItem('cart', '[]');
+            total = 0;
+        }
+        var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+        if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+    }
+
+    var allProducts = [];
+
+    async function loadPopularProducts() {
+        var grid = document.getElementById('popularProducts');
+        if (!grid) return;
+        try {
+            var resp = await sb.from('products').select('*').order('id', { ascending: true }).limit(8);
+            if (resp.error) throw resp.error;
+            var products = resp.data;
+            allProducts = products;
+
+            grid.innerHTML = '';
+            products.forEach(function(p, i) {
+                var badge = i === 0 ? 'Хит' : (i === 2 ? 'Sale' : null);
+                var badgeHTML = badge
+                    ? '<span class="p-badge ' + (badge === 'Sale' ? 'sale' : '') + '">' + (badge === 'Sale' ? '-%' : badge) + '</span>'
+                    : '';
+
+                var pid = p.id;
+                var cleanImg = (p.img || '').replace(/^\//, '').replace(/^img\//, '');
+                var finalImg = 'img/' + cleanImg;
+
+                grid.innerHTML += '<article class="p-card">' +
+                    '<div class="p-image">' + badgeHTML +
+                    '<a href="public/pages/info_card.html?id=' + pid + '#' + pid + '">' +
+                    '<img src="' + finalImg + '" alt="' + p.name + '" onerror="this.src=\'img/placeholder.png\'">' +
+                    '</a>' +
+                    '</div>' +
+                    '<div class="p-details">' +
+                    '<span class="p-brand">' + (p.brand || 'Строй Мир') + '</span>' +
+                    '<a href="public/pages/info_card.html?id=' + pid + '#' + pid + '" style="text-decoration:none; color:inherit;">' +
+                    '<h4>' + p.name + '</h4>' +
+                    '</a>' +
+                    '<div class="p-footer">' +
+                    '<span>' + Number(p.price).toLocaleString('ru-RU') + ' ₽</span>' +
+                    '<button class="add-btn" onclick="addToCart(\'' + pid + '\')">+</button>' +
+                    '</div></div></article>';
+            });
+        } catch (e) {
+            grid.innerHTML = '<p style="color:#999;text-align:center;grid-column:1/-1;">Не удалось загрузить товары</p>';
+        }
+    }
+
+    function addToCart(productId) {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var product = allProducts.find(function(p) { return p.id == productId; });
+        if (!product) return;
+
+        var existing = cart.find(function(item) { return item.id == productId; });
+        if (existing) {
+            existing.count += 1;
+        } else {
+            cart.push({ 
+                id: product.id, 
+                name: product.name, 
+                price: product.price, 
+                img: product.img, 
+                brand: product.brand,
+                count: 1 
+            });
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCart();
+        alert('Товар добавлен в корзину!');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        sb.auth.getSession().then(function(result) {
+            var session = result.data.session;
+            renderAuthButton(session ? session.user : null);
+        });
+        sb.auth.onAuthStateChange(function(_event, session) {
+            renderAuthButton(session ? session.user : null);
+        });
+        updateCart();
+        loadPopularProducts();
+    });
+</script>
+
+</body>
+</html>

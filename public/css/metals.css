@@ -1,0 +1,142 @@
+.metals-page {
+    padding-top: 60px;
+    padding-bottom: 100px;
+}
+
+.calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.metal-config {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 30px;
+}
+
+.config-section {
+    margin-bottom: 30px;
+}
+
+.config-section h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+.type-card {
+    padding: 20px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.type-card.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.type-card i {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.type-card span {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.input-group input, .input-group select {
+    padding: 14px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.result-sidebar {
+    position: sticky;
+    top: 100px;
+}
+
+.result-card {
+    background: #000;
+    color: #fff;
+    padding: 40px;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.result-card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    margin-bottom: 20px;
+}
+
+.weight-display {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.unit {
+    font-size: 18px;
+    opacity: 0.6;
+    margin-left: 5px;
+}
+
+.price-display {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 30px;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .calc-grid {
+        grid-template-columns: 1fr;
+    }
+    .result-sidebar {
+        position: static;
+    }
+}

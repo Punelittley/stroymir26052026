@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Готовые решения — MODERN STROY</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/sets.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="/public/pages/catalog.html">Каталог</a></li>
+                <li><a href="/public/pages/sets.html" class="active">Готовые наборы</a></li>
+                <li><a href="/public/pages/metals.html">Сдать металл</a></li>
+                <li><a href="/public/pages/calc.html">Калькулятор</a></li>
+                <li><a href="/public/pages/about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                
+                <a href="/public/pages/login.html" class="login-btn" id="navAuthBtn">Войти</a>
+                <a href="/public/pages/cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+            
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Металлы</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    
+        </div>
+    </div>
+
+    <main class="catalog-page container">
+        <div class="page-header">
+            <h1>Готовые решения</h1>
+            <p>Комплексные сеты материалов и инструментов со скидкой до 15%.</p>
+        </div>
+        <section class="sets-grid-v2" id="setsGrid">
+            <div class="sets-loading">Загрузка наборов...</div>
+        </section>
+    </main>
+
+     <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Металлы</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+(function() {
+    const sb = window.supabase.createClient(
+        'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+    );
+
+    function updateCart() {
+        var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        var total = cart.reduce(function(sum, item) { 
+            return sum + (Number(item.count) || 0); 
+        }, 0);
+        if (isNaN(total) || total < 0) {
+            localStorage.setItem('cart', '[]');
+            total = 0;
+        }
+        var mobileEl = document.getElementById('mobileCartCount');
+        var el = document.getElementById('cartCount');
+        if (el) el.innerText = total;
+        if(window.__updateMobileCart) window.__updateMobileCart(total);
+        var mEl = document.getElementById('mobileCartCount');
+        if (mEl) mEl.innerText = total;
+    }
+
+    async function loadSets() {
+        try {
+            const { data: sets, error } = await sb.from('sets').select('*');
+            if (error) throw error;
+            
+            const countEl = document.getElementById('sets-count');
+            if (countEl) countEl.innerText = '(' + sets.length + ' наборов)';
+            
+            const grid = document.getElementById('setsGrid');
+            if (!grid) return;
+            
+            grid.innerHTML = sets.map(function(s) {
+                
+                let imgPath = s.img || '';
+                if (imgPath && !imgPath.startsWith('http')) {
+                    let cleanImg = imgPath.replace(/^\//, '').replace(/^img\//, '');
+                    imgPath = '../../img/' + cleanImg;
+                }
+
+                return '<article class="big-set-card">' +
+                    '<div class="set-v2-image">' +
+                    '<img src="' + imgPath + '" alt="' + s.name + '" onerror="this.style.display=\'none\'">' +
+                    (s.badge ? '<span class="set-v2-badge">' + s.badge + '</span>' : '') +
+                    '</div>' +
+                    '<div class="set-v2-info">' +
+                    '<span class="set-v2-cat">' + (s.category_label || 'Комплект') + '</span>' +
+                    '<h2>' + s.name + '</h2>' +
+                    '<p>' + (s.description || '') + '</p>' +
+                    '<div class="set-v2-bottom">' +
+                    '<div class="set-v2-price">' + (s.price ? s.price.toLocaleString() : 0) + ' ₽</div>' +
+                    '<a href="/public/pages/sett_info.html?id=' + s.id + '#' + s.id + '" class="btn btn-black">Смотреть состав</a>' +
+                    '</div></div></article>';
+            }).join('');
+        } catch (e) {
+            console.error('Ошибка загрузки наборов:', e);
+            const grid = document.getElementById('setsGrid');
+            if (grid) grid.innerHTML = '<p style="text-align:center; padding: 40px; color: #666;">Не удалось загрузить наборы. Пожалуйста, попробуйте позже.</p>';
+        }
+    }
+
+    async function checkAuth() {
+        try {
+            var { data: { session } } = await sb.auth.getSession();
+            var user = session?.user;
+            var authBtn = document.getElementById('navAuthBtn');
+            var mobileAuthBtn = document.getElementById('mobileAuthBtn');
+            if (user && authBtn) {
+                var [profileRes, roleRes] = await Promise.all([
+                    sb.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle(),
+                    sb.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
+                ]);
+                var name = (profileRes.data?.full_name || user.email).split(' ')[0];
+                var role = roleRes.data?.role || 'user';
+                var targetPage = (role === 'admin') ? '/public/pages/admin.html' : '/public/pages/profile.html';
+
+                authBtn.innerHTML = name;
+                authBtn.href = targetPage;
+                if(window.__updateMobileAuth) window.__updateMobileAuth(name, targetPage);
+                if(mobileAuthBtn) { mobileAuthBtn.innerHTML = name; mobileAuthBtn.href = targetPage; }
+            }
+        } catch (e) { console.error('Auth error', e); }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() { 
+        updateCart(); 
+        loadSets(); 
+        checkAuth(); 
+    });
+})();
+</script>
+
+</body>
+</html>

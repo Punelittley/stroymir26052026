@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет — Строй Мир</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        .modal-2fa-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-2fa-overlay.active { display: flex; }
+        .modal-2fa-box {
+            background: #fff;
+            border-radius: 28px;
+            padding: 50px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.15);
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-2fa-box h2 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        .modal-2fa-box p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .modal-2fa-box img {
+            width: 200px;
+            height: 200px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+        .modal-2fa-box .secret-text {
+            font-size: 12px;
+            color: var(--muted);
+            background: var(--bg-light);
+            padding: 10px 16px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        .totp-input {
+            padding: 16px 24px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: 8px;
+            width: 220px;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+        .totp-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 5px var(--accent-soft, #eff6ff);
+        }
+        .modal-2fa-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .modal-2fa-error {
+            color: #ff3b30;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/mobile-menu.js" defer></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="container flex-nav">
+            <a href="/" class="logo">Строй Мир<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="catalog.html">Каталог</a></li>
+                <li><a href="sets.html">Готовые наборы</a></li>
+                <li><a href="metals.html">Металлы</a></li>
+                <li><a href="calc.html">Калькулятор</a></li>
+                <li><a href="about.html">О нас</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="profile.html" class="login-btn active" id="navAuthBtn">Профиль</a>
+                <a href="cart.html" class="cart-pill">
+                    <span>Корзина</span>
+                    <div class="count" id="cartCount">0</div>
+                </a>
+            </div>
+            
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="mobile-sidebar" id="mobileSidebar">
+        <div class="menu-links">
+            <a href="/public/pages/catalog.html">Каталог</a>
+            <a href="/public/pages/sets.html">Готовые наборы</a>
+            <a href="/public/pages/metals.html">Металлы</a>
+            <a href="/public/pages/calc.html">Калькулятор</a>
+            <a href="/public/pages/about.html">О нас</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="/public/pages/login.html" class="btn btn-outline" id="mobileAuthBtn">Войти</a>
+            <a href="/public/pages/cart.html" class="btn btn-black">Корзина <span id="mobileCartCount">0</span></a>
+        </div>
+    </aside>
+
+    <div class="floating-burger" id="floatBurger">
+        <button class="burger-menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    
+        </div>
+    </div>
+
+    <main class="profile-dashboard container">
+        <div class="page-header">
+            <h1>Профиль</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="mobile-profile-nav" id="mobileProfileNav">
+                <select id="mobileTabSelect" onchange="switchMobileTab(this.value)">
+                    <option value="personal">Личные сведения</option>
+                    <option value="orders">История заказов</option>
+                    <option value="scrap">Сданный металл</option>
+                    <option value="security">Безопасность</option>
+                    <option value="support">Поддержка</option>
+                </select>
+            </div>
+
+            <aside class="dashboard-sidebar">
+                <div class="user-card-brief">
+                    <div class="avatar-box" id="avatarInitials">?</div>
+                    <div class="user-text">
+                        <h3 id="sideFullName">Загрузка...</h3>
+                        <span class="role-label" id="sideRole">Клиент</span>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-btn active" onclick="openTab('personal', this)">Личные сведения</button>
+                    <button class="nav-btn" onclick="openTab('orders', this)">История заказов</button>
+                    <button class="nav-btn" onclick="openTab('scrap', this)">Сданный металл</button>
+                    <button class="nav-btn" onclick="openTab('security', this)">Безопасность</button>
+                    <button class="nav-btn" onclick="openTab('support', this)">Поддержка</button>
+                    <div class="nav-divider"></div>
+                    <button class="nav-btn logout-trigger" onclick="handleLogout()">Выйти</button>
+                </nav>
+            </aside>
+
+            <section class="dashboard-content">
+                <div id="tab-personal" class="tab-pane active">
+                    <div class="strict-card">
+                        <div class="card-head">
+                            <h2>Данные пользователя</h2>
+                            <button id="editToggleBtn" class="link-btn" onclick="enableEditing()">Изменить данные</button>
+                        </div>
+                        <form id="updateProfileForm" class="strict-form">
+                            <div class="form-grid">
+                                <div class="input-block"><label>ФИО</label><input type="text" id="db-name" disabled required></div>
+                                <div class="input-block"><label>Email</label><input type="email" id="db-email" disabled></div>
+                                <div class="input-block"><label>Телефон</label><input type="tel" id="db-phone" disabled></div>
+                                <div class="input-block"><label>Статус</label><input type="text" value="Активен" disabled class="status-input"></div>
+                                <div class="input-block full-width"><label>Адрес доставки</label><input type="text" id="db-address" disabled></div>
+                            </div>
+                            <div id="saveAction" class="form-actions-footer" style="display: none;">
+                                <button type="submit" class="btn btn-black">Сохранить</button>
+                                <button type="button" class="btn btn-outline" onclick="location.reload()">Отмена</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="tab-orders" class="tab-pane">
+                    <div class="strict-card">
+                        <h2>История заказов</h2>
+                        <div id="ordersContainer" class="orders-stack"></div>
+                    </div>
+                </div>
+
+                <div id="tab-scrap" class="tab-pane">
+                    <div class="strict-card">
+                        <h2>История сдачи металла</h2>
+                        <div id="scrapContainer" class="orders-stack"></div>
+                    </div>
+                </div>
+
+                <div id="tab-security" class="tab-pane">
+                    <div class="security-stack">
+                        <div class="strict-card flex-row">
+                            <div class="card-text">
+                                <h2>2FA Аутентификация (TOTP)</h2>
+                                <p>Защита аккаунта через Google Authenticator / Authy</p>
+                                <div id="2fa-status" class="status-indicator inactive">Отключена</div>
+                            </div>
+                            <div>
+                                <button id="btn-enable-2fa" class="btn btn-black" onclick="open2FASetupModal()">Подключить</button>
+                                <button id="btn-disable-2fa" class="btn btn-outline" style="display:none" onclick="disable2FA()">Отключить</button>
+                            </div>
+                        </div>
+
+                        <div class="strict-card">
+                            <h2>Смена пароля</h2>
+                            <form class="password-change-form" onsubmit="handlePassUpdate(event)">
+                                <div class="input-block" style="flex: 1;"><input type="password" id="new-password" placeholder="Новый сложный пароль" required minlength="8"></div>
+                                <button type="submit" class="btn btn-black">Обновить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-support" class="tab-pane">
+                    <div class="chat-wrapper">
+                        <div class="chat-header-info">
+                            <div class="bot-avatar">SM</div>
+                            <div class="bot-meta">
+                                <b>Инженер Строй Мир</b>
+                                <span class="online-indicator">Онлайн | Анализ чеков активен</span>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="msg bot-msg">Привет! Я инженер Строй Мир. Могу помочь с <b>доставкой</b>, <b>гарантией</b> или <b>проверкой чека</b>.</div>
+                        </div>
+                        <div class="chat-input-zone">
+                            <div class="input-wrapper-modern">
+                                <input type="file" id="fileUploader" style="display:none" onchange="processFile(this)">
+                                <button class="icon-btn-modern" onclick="document.getElementById('fileUploader').click()">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path></svg>
+                                </button>
+                                <input type="text" id="chatInput" placeholder="Ваш запрос..." onkeypress="if(event.key==='Enter') sendUserMessage()">
+                                <button onclick="sendUserMessage()" class="send-btn">➔</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+        <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="f-about">
+                <div class="logo">Строй Мир<span>.</span></div>
+                <p>Первая цифровая экосистема стройматериалов. Мы меняем представление о ремонте, делая его технологичным.</p>
+                <div class="f-socials"><a href="https://vk.ru/batytin56" target="_blank">VK</a></div>
+            </div>
+            <div class="f-links">
+                <h5>Магазин</h5>
+                <a href="/public/pages/catalog.html">Каталог</a>
+                <a href="/public/pages/sets.html">Готовые наборы</a>
+                <a href="/public/pages/metals.html">Металлы</a>
+                <a href="/public/pages/calc.html">Калькулятор</a>
+                <a href="/public/pages/about.html">О нас</a>
+            </div>
+            <div class="f-links">
+                <h5>Связь с нами</h5>
+                <span class="contact-label">Телефон</span>
+                <p>8 800 2000 32 12</p>
+                <span class="contact-label">Email</span>
+                <p>mstroy1@gmail.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="receiptTemplate" style="display:none; padding:50px; background:#fff; color:#000; width: 800px;">
+        <h1 style="border-bottom:2px solid #000; padding-bottom:10px;">Строй Мир ЧЕК</h1>
+        <p id="pdf-id"></p><p id="pdf-customer"></p><p id="pdf-items" style="margin: 20px 0; font-weight: 600;"></p><h2 id="pdf-total"></h2>
+    </div>
+
+    <script>
+    (function() {
+        var sb = window.supabase.createClient(
+            'https://bwpyhnqowjukwoxbxbnk.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3cHlobnFvd2p1a3dveGJ4Ym5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTY0OTUsImV4cCI6MjA4NzIzMjQ5NX0.q7faVibjHxjSq3KxVKv9fPg6n2vsArNB03JrT3lJ8Xs'
+        );
+        var currentUser = null;
+
+
+        window.openTab = function(id, btn) {
+            document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+            document.querySelectorAll('.sidebar-nav .nav-btn').forEach(function(m) { m.classList.remove('active'); });
+            document.getElementById('tab-' + id).classList.add('active');
+            if(btn) btn.classList.add('active');
+            if(id === 'orders') fetchOrders();
+            if(id === 'scrap') fetchScrapSubmissions();
+            if(id === 'support') loadChatHistory();
+        };
+
+        async function initProfile() {
+            try {
+                var { data: { session } } = await sb.auth.getSession();
+                var user = session?.user;
+                if (!user) return window.location.replace('login.html');
+
+                var { data: profile } = await sb.from('profiles').select('*').eq('user_id', user.id).single();
+                currentUser = Object.assign({}, profile, { email: user.email, user_id: user.id });
+
+                document.getElementById('navAuthBtn').innerHTML = (currentUser.full_name || '').split(' ')[0] || 'Кабинет';
+                document.getElementById('sideFullName').innerText = currentUser.full_name || 'Пользователь';
+                document.getElementById('db-name').value = currentUser.full_name || '';
+                document.getElementById('db-email').value = currentUser.email;
+                document.getElementById('db-phone').value = currentUser.phone || '';
+                document.getElementById('db-address').value = currentUser.address || '';
+                document.getElementById('avatarInitials').innerText = (currentUser.full_name || '?')[0].toUpperCase();
+
+                await update2FALabel();
+            } catch (e) { console.error("Auth error"); }
+        }
+
+        let currentFactorId = null;
+
+        async function update2FALabel() {
+            try {
+                const { data, error } = await sb.auth.mfa.listFactors();
+                if (error) throw error;
+                const totpFactors = data.totp || [];
+                const active = totpFactors.length > 0;
+                window.is2FAActive = active;
+                window.useMockChat = false; 
+                
+                var l = document.getElementById('2fa-status');
+                if(l) {
+                    l.innerText = active ? "Защита активна ✓" : "Защита отключена";
+                    l.className = "status-indicator " + (active ? "active" : "inactive");
+                }
+                const enableBtn = document.getElementById('btn-enable-2fa');
+                const disableBtn = document.getElementById('btn-disable-2fa');
+                if(enableBtn) enableBtn.style.display = active ? 'none' : 'inline-block';
+                if(disableBtn) disableBtn.style.display = active ? 'inline-block' : 'none';
+            } catch (e) {
+                console.error("MFA Error:", e);
+            }
+        }
+
+        window.open2FASetupModal = async function() {
+            try {
+                
+                const { data: factorsList } = await sb.auth.mfa.listFactors();
+                if (factorsList && factorsList.all) {
+                    for (const factor of factorsList.all) {
+                        if (factor.status !== 'verified') {
+                            await sb.auth.mfa.unenroll({ factorId: factor.id });
+                        }
+                    }
+                }
+
+                const { data, error } = await sb.auth.mfa.enroll({ 
+                    factorType: 'totp',
+                    friendlyName: 'Строй Мир (' + new Date().toLocaleDateString() + ')'
+                });
+                if (error) { alert("Ошибка 2FA: " + error.message); return; }
+                currentFactorId = data.id;
+                
+                let m = document.getElementById('modal-2fa');
+                if(!m) {
+                    m = document.createElement('div');
+                    m.id = 'modal-2fa';
+                    m.className = 'modal-2fa-overlay active';
+                    m.innerHTML = `
+                    <div class="modal-2fa-box">
+                        <h2>Настройка 2FA</h2>
+                        <p>Отсканируйте QR-код в приложении-аутентификаторе и введите полученный код.</p>
+                        <div id="qr-container" style="margin-bottom: 20px; display:flex; justify-content:center;"></div>
+                        <div class="secret-text" id="secret-code"></div>
+                        <input type="text" id="totp-code" class="totp-input" placeholder="000000" maxlength="6">
+                        <div class="modal-2fa-error" id="totp-error"></div>
+                        <div class="modal-2fa-actions">
+                            <button class="btn btn-black" onclick="verify2FA()">Подтвердить</button>
+                            <button class="btn btn-outline" onclick="document.getElementById('modal-2fa').classList.remove('active')">Отмена</button>
+                        </div>
+                    </div>`;
+                    document.body.appendChild(m);
+                } else {
+                    m.classList.add('active');
+                }
+                
+                const qrContainer = document.getElementById('qr-container');
+                qrContainer.innerHTML = ''; 
+                
+                new QRCode(qrContainer, {
+                    text: data.totp.uri,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                
+                setTimeout(() => {
+                    const img = qrContainer.querySelector('img');
+                    if (img) {
+                        img.style.borderRadius = '16px';
+                        img.style.border = '1px solid var(--border)';
+                        img.style.display = 'block';
+                        img.style.margin = '0 auto';
+                    }
+                }, 100);
+                document.getElementById('secret-code').innerText = data.totp.secret;
+                document.getElementById('totp-error').style.display = 'none';
+                document.getElementById('totp-code').value = '';
+            } catch(e) { console.error(e); }
+        };
+
+        window.verify2FA = async function() {
+            try {
+                const code = document.getElementById('totp-code').value;
+                const challenge = await sb.auth.mfa.challenge({ factorId: currentFactorId });
+                if (challenge.error) {
+                    document.getElementById('totp-error').innerText = "Ошибка: " + challenge.error.message;
+                    document.getElementById('totp-error').style.display = 'block';
+                    return;
+                }
+                
+                const verify = await sb.auth.mfa.verify({
+                    factorId: currentFactorId,
+                    challengeId: challenge.data.id,
+                    code: code
+                });
+                
+                if (verify.error) {
+                    document.getElementById('totp-error').innerText = "Неверный код!";
+                    document.getElementById('totp-error').style.display = 'block';
+                } else {
+                    alert("2FA успешно включена!");
+                    document.getElementById('modal-2fa').classList.remove('active');
+                    update2FALabel();
+                }
+            } catch(e) { console.error(e); }
+        };
+
+        window.disable2FA = async function() {
+            if(!confirm("Уверены, что хотите отключить 2FA?")) return;
+            try {
+                const { data, error } = await sb.auth.mfa.listFactors();
+                if (data && data.totp && data.totp.length > 0) {
+                    for (let factor of data.totp) {
+                        await sb.auth.mfa.unenroll({ factorId: factor.id });
+                    }
+                    alert("2FA отключена");
+                    update2FALabel();
+                }
+            } catch(e) { console.error(e); }
+        };
+
+        async function fetchOrders() {
+            var { data: orders } = await sb.from('orders').select('*').eq('user_id', currentUser.user_id).order('created_at', { ascending: false });
+            var container = document.getElementById('ordersContainer');
+            if(!container) return;
+            container.innerHTML = (!orders || orders.length === 0) ? '<div class="empty-notif">Заказов нет</div>' : orders.map(function(o) {
+                return '<div class="order-strict-item">' +
+                    '<div class="o-head"><b>ЗАКАЗ #' + o.id + '</b><span class="st-badge">' + (o.status || 'Новый') + '</span></div>' +
+                    '<div class="o-items">' + (o.items_text || '') + '</div>' +
+                    '<div class="o-footer"><span>' + (o.created_at ? new Date(o.created_at).toLocaleDateString('ru-RU') : '') + '</span><b>' + (o.total_price || 0).toLocaleString() + ' ₽</b></div></div>';
+            }).join('');
+        }
+        
+        async function fetchScrapSubmissions() {
+            var { data: subs, error } = await sb.from('scrap_submissions').select('*').eq('user_id', currentUser.user_id).order('created_at', { ascending: false });
+            var container = document.getElementById('scrapContainer');
+            if(!container) return;
+            if (error) {
+                container.innerHTML = '<div class="empty-notif">Ошибка при загрузке данных</div>';
+                return;
+            }
+            const typeNames = { black: 'Черный металл', copper: 'Медь', aluminum: 'Алюминий', brass: 'Латунь / Бронза' };
+            container.innerHTML = (!subs || subs.length === 0) ? '<div class="empty-notif">Вы еще не сдавали металл</div>' : subs.map(function(s) {
+                return '<div class="order-strict-item">' +
+                    '<div class="o-head"><b>' + (typeNames[s.metal_type] || s.metal_type) + '</b><span class="st-badge">' + (s.status === 'pending' ? 'Ожидание' : (s.status === 'accepted' ? 'Принято' : 'Отклонено')) + '</span></div>' +
+                    '<div class="o-items">' + s.weight + ' кг по ' + s.price_per_kg + ' ₽/кг</div>' +
+                    '<div class="o-footer"><span>' + new Date(s.created_at).toLocaleDateString('ru-RU') + '</span><b>' + (s.total_sum || 0).toLocaleString() + ' ₽</b></div></div>';
+            }).join('');
+        }
+
+        window.enableEditing = function() {
+            document.querySelectorAll('#updateProfileForm input:not(.status-input)').forEach(function(i) { i.disabled = false; });
+            document.getElementById('saveAction').style.display = 'flex';
+            document.getElementById('editToggleBtn').style.display = 'none';
+        };
+
+        document.getElementById('updateProfileForm').onsubmit = async function(e) {
+            e.preventDefault();
+            await sb.from('profiles').update({
+                full_name: document.getElementById('db-name').value,
+                phone: document.getElementById('db-phone').value,
+                address: document.getElementById('db-address').value
+            }).eq('user_id', currentUser.user_id);
+            alert('Данные сохранены');
+            location.reload();
+        };
+
+        window.handleLogout = async function() {
+            var oldUid = localStorage.getItem('current_user_id');
+            if (oldUid) {
+                localStorage.setItem('cart_' + oldUid, localStorage.getItem('cart') || '[]');
+            }
+            localStorage.removeItem('current_user_id');
+            localStorage.setItem('cart', '[]');
+            await sb.auth.signOut();
+            window.location.href = '/';
+        };
+
+        async function loadChatHistory() {
+            var c = document.getElementById('chatMessages');
+            try {
+                var { data: messages, error } = await sb.from('support_messages').select('*').eq('user_id', currentUser.user_id).order('created_at', { ascending: true });
+                if (error) {
+                    console.warn("Support table not ready, using mock chat.");
+                    window.useMockChat = true;
+                    return;
+                }
+                window.useMockChat = false;
+                if (messages && messages.length > 0) {
+                    c.innerHTML = '';
+                    messages.forEach(msg => {
+                        c.innerHTML += '<div class="msg ' + (msg.is_user ? 'user-msg' : 'bot-msg') + '">' + msg.message + '</div>';
+                    });
+                    c.scrollTop = c.scrollHeight;
+                }
+            } catch(e) { 
+                window.useMockChat = true; 
+            }
+        }
+
+        window.sendUserMessage = async function() {
+            var input = document.getElementById('chatInput');
+            var c = document.getElementById('chatMessages');
+            if(!input.value.trim()) return;
+            var userText = input.value;
+            c.innerHTML += '<div class="msg user-msg">' + userText + '</div>';
+            input.value = '';
+            c.scrollTop = c.scrollHeight;
+
+            if (window.useMockChat) {
+                var val = userText.toLowerCase();
+                setTimeout(function() {
+                    var reply = "Ваш запрос передан инженеру. Ожидайте.";
+                    var botAnswers = { "доставк": "Доставка бесплатна от 50к.", "гарант": "Гарантия 2 года.", "чек": "PDF чек в разделе заказов." };
+                    for (var k in botAnswers) if(val.includes(k)) reply = botAnswers[k];
+                    c.innerHTML += '<div class="msg bot-msg">' + reply + '</div>';
+                    c.scrollTop = c.scrollHeight;
+                }, 800);
+                return;
+            }
+
+            try {
+                
+                await sb.from('support_messages').insert({ user_id: currentUser.user_id, is_user: true, message: userText });
+                
+                
+                var val = userText.toLowerCase();
+                var reply = "Ваш запрос передан инженеру. Ожидайте.";
+                var botAnswers = { "доставк": "Доставка бесплатна от 50к.", "гарант": "Гарантия 2 года.", "чек": "PDF чек в разделе заказов." };
+                for (var k in botAnswers) if(val.includes(k)) reply = botAnswers[k];
+                
+                setTimeout(async function() {
+                    await sb.from('support_messages').insert({ user_id: currentUser.user_id, is_user: false, message: reply });
+                    c.innerHTML += '<div class="msg bot-msg">' + reply + '</div>';
+                    c.scrollTop = c.scrollHeight;
+                }, 800);
+
+            } catch(e) {
+                console.error("Chat error", e);
+            }
+        };
+
+        window.processFile = function(input) {
+            console.log("File selected:", input.files[0]);
+            if (!input.files || !input.files[0]) return;
+            var file = input.files[0];
+            var c = document.getElementById('chatMessages');
+            if (!c) return;
+            
+            c.innerHTML += '<div class="msg user-msg"><i>📎 Прикреплен файл: ' + file.name + '</i></div>';
+            c.scrollTop = c.scrollHeight;
+            
+            setTimeout(async function() {
+                var reply = "Файл «" + file.name + "» получен и передан инженеру. Ожидайте анализа.";
+                if (window.useMockChat === false) {
+                    try {
+                        await sb.from('support_messages').insert({ user_id: currentUser.user_id, is_user: false, message: reply });
+                    } catch(e) { console.error("Failed to save bot reply:", e); }
+                }
+                c.innerHTML += '<div class="msg bot-msg">' + reply + '</div>';
+                c.scrollTop = c.scrollHeight;
+            }, 1000);
+        };
+
+        window.onload = function() {
+            updateCart();
+            initProfile();
+        };
+
+        function updateCart() {
+            var cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            var total = cart.reduce(function(sum, item) { 
+                return sum + (Number(item.count) || 0); 
+            }, 0);
+            var el = document.getElementById('cartCount');
+            if (el) el.innerText = total;
+            var mobileEl = document.getElementById('mobileCartCount');
+            if (mobileEl) mobileEl.innerText = total;
+        }
+    })();
+    </script>
+</body>
+</html>
