@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -45,10 +45,8 @@ app.post('/api/upload', upload.array('photos', 3), (req, res) => {
     }
 });
 
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Сервер запущен на http://localhost:${PORT}`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+});
 
 module.exports = app;
